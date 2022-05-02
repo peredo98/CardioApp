@@ -3,7 +3,7 @@ import { Form, Button, Row, Col, Container } from "react-bootstrap";
 import { Typography } from "@mui/material";
 import GoogleIcon from "@mui/icons-material/Google";
 import Center from "../utils/Center";
-import { signInWithPopup } from "firebase/auth";
+import { signInWithPopup, createUserWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { auth, Providers } from "../../config/firebase";
 
@@ -11,6 +11,8 @@ const LoginForm = (props) => {
     const navigate = useNavigate();
     const [errorMessage, setErrorMessage] = useState("");
     const [disabled, setDisabled] = useState(false);
+    const [password, setPassword] = useState("");
+    const [email, setEmail] = useState("");
 
     const signInWithGoogle = () => {
         setDisabled(true);
@@ -23,6 +25,19 @@ const LoginForm = (props) => {
             .catch((error) => {
                 setErrorMessage(error.code + ": " + error.message);
                 setDisabled(false);
+            });
+    };
+
+    const createUserWithEmailAndPwd = (event) => {
+        setDisabled(true);
+        console.log("Email: " + email + " Pwd: " + password);
+        createUserWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                console.log(user);
+            })
+            .catch((error) => {
+                console.log("Error: " + error.message);
             });
     };
 
@@ -84,7 +99,7 @@ const LoginForm = (props) => {
                     <Form.Control type="text" placeholder="Apellido Materno" />
                 </Form.Group>
 
-                <Form.Group className="mb-3" controlId="formBasicEmail">
+                <Form.Group className="mb-3" controlId="formBasicEmail" onChange={(event) => setEmail(event.target.value)}>
                     <Form.Label>Email address</Form.Label>
                     <Form.Control type="email" placeholder="Enter email" />
                     <Form.Text className="text-muted">
@@ -94,7 +109,7 @@ const LoginForm = (props) => {
 
                 <Row>
                     <Col>
-                        <Form.Group className="mb" controlId="formBasicPassword">
+                        <Form.Group className="mb" controlId="formBasicPassword" onChange={(event) => setPassword(event.target.value)}>
                             <Form.Label>Contraseña</Form.Label>
                             <Form.Control type="password" placeholder="Password" />
                         </Form.Group>
@@ -109,7 +124,7 @@ const LoginForm = (props) => {
 
                 <Row>
                     <Col>
-                        <Button className="mt-3" variant="primary" type="submit">
+                        <Button className="mt-3" variant="primary" onClick={createUserWithEmailAndPwd}>
                             Registrarse
                         </Button>
                     </Col>
