@@ -48,11 +48,11 @@ const Login = (props) => {
         </Box>
         {/* login */}
         <TabPanel value={value} index={0}>
-          <AuthContainer />
+          <AuthContainer authState={value}/>
         </TabPanel>
         {/* register */}
         <TabPanel value={value} index={1}>
-          <AuthContainer />
+          <AuthContainer authState={value}/>
         </TabPanel>
       </Box>
     </Center>

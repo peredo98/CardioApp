@@ -1,19 +1,83 @@
-import React from "react";
-import { Form, Button } from "react-bootstrap";
+import React, {useState} from "react";
+import { Form, Button, Row, Col, Container } from "react-bootstrap";
+import { Typography } from "@mui/material";
+import GoogleIcon from "@mui/icons-material/Google";
+import Center from "../utils/Center";
+import { signInWithPopup } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
+import { auth, Providers } from "../../config/firebase";
 
-class LoginForm extends React.Component {
-    render() {
+const LoginForm = (props) => {
+    const navigate = useNavigate();
+    const [errorMessage, setErrorMessage] = useState("");
+    const [disabled, setDisabled] = useState(false);
+
+    const signInWithGoogle = () => {
+        setDisabled(true);
+        signInWithPopup(auth, Providers.google)
+            .then(() => {
+                setDisabled(false);
+                console.info("TODO: navigate to authenticated screen");
+                navigate("/");
+            })
+            .catch((error) => {
+                setErrorMessage(error.code + ": " + error.message);
+                setDisabled(false);
+            });
+    };
+
+    if(props.authState === 0){
+        return (
+            <Container>
+                <Row>
+                    <Col>
+                        <Form.Group className="mb-3" controlId="formBasicPassword">
+                            <Form.Label>Email</Form.Label>
+                            <Form.Control type="text" placeholder="Nombre" />
+                        </Form.Group>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col>
+                        <Form.Group className="mb-3" controlId="formBasicPassword">
+                            <Form.Label>Contraseña</Form.Label>
+                            <Form.Control type="password" placeholder="Password" />
+                        </Form.Group>
+                    </Col>
+                </Row>
+                <Row>
+                    <Center height={"auto"}>
+                        <Button
+                            disabled={disabled}
+                            variant="primary"
+                            onClick={signInWithGoogle}
+                        >
+                            <GoogleIcon /> Conectate con Google
+                        </Button>
+                        <Typography sx={{ mt: 2 }} color={"red"}>
+                            {errorMessage}
+                        </Typography>
+                    </Center>
+                </Row>
+            </Container>
+        );
+    }else{
         return (
             <Form>
-                <Form.Group className="mb-3" controlId="formBasicPassword">
-                    <Form.Label>Nombre</Form.Label>
-                    <Form.Control type="text" placeholder="Nombre" />
-                </Form.Group>
-
-                <Form.Group className="mb-3" controlId="formBasicPassword">
-                    <Form.Label>Apellido Paterno</Form.Label>
-                    <Form.Control type="text" placeholder="Apellido Paterno" />
-                </Form.Group>
+                <Row>
+                    <Col>
+                        <Form.Group className="mb" controlId="formBasicPassword">
+                            <Form.Label>Nombre</Form.Label>
+                            <Form.Control type="text" placeholder="Nombre" />
+                        </Form.Group>
+                    </Col>
+                    <Col>
+                        <Form.Group className="mb" controlId="formBasicPassword">
+                            <Form.Label>Apellido Paterno</Form.Label>
+                            <Form.Control type="text" placeholder="Apellido Paterno" />
+                        </Form.Group>
+                    </Col>
+                </Row>
 
                 <Form.Group className="mb-3" controlId="formBasicPassword">
                     <Form.Label>Apellido Materno</Form.Label>
@@ -28,39 +92,31 @@ class LoginForm extends React.Component {
                     </Form.Text>
                 </Form.Group>
 
-                <Form.Group className="mb-3" controlId="formBasicPassword">
-                    <Form.Label>Contraseña</Form.Label>
-                    <Form.Control type="password" placeholder="Password" />
-                </Form.Group>
+                <Row>
+                    <Col>
+                        <Form.Group className="mb" controlId="formBasicPassword">
+                            <Form.Label>Contraseña</Form.Label>
+                            <Form.Control type="password" placeholder="Password" />
+                        </Form.Group>
+                    </Col>
+                    <Col>
+                        <Form.Group className="mb" controlId="formBasicPassword">
+                            <Form.Label>Confirmar Contraseña</Form.Label>
+                            <Form.Control type="password" placeholder="Password" />
+                        </Form.Group>
+                    </Col>
+                </Row>
 
-                <Form.Group className="mb-3" controlId="formBasicPassword">
-                    <Form.Label>Confirmar Contraseña</Form.Label>
-                    <Form.Control type="password" placeholder="Password" />
-                </Form.Group>
-
-                <Button variant="primary" type="submit">
-                    Submit
-                </Button>
+                <Row>
+                    <Col>
+                        <Button className="mt-3" variant="primary" type="submit">
+                            Registrarse
+                        </Button>
+                    </Col>
+                </Row>
             </Form>
         );
     }
-}
+};
 
 export default LoginForm;
-
-/*
-<Center height={"auto"}>
-      <Button
-        startIcon={<GoogleIcon />}
-        size="large"
-        disabled={disabled}
-        variant="contained"
-        onClick={signInWithGoogle}
-      >
-        Sign In With Google
-      </Button>
-      <Typography sx={{ mt: 2 }} color={"red"}>
-        {errorMessage}
-      </Typography>
-    </Center>
- */

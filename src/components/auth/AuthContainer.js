@@ -1,14 +1,7 @@
-import { useState } from "react";
-import { signInWithPopup } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
-import { auth, Providers } from "../../config/firebase";
 import LoginForm from "../../components/auth/LoginForm";
-import { Button, Typography } from "@mui/material";
-import GoogleIcon from "@mui/icons-material/Google";
-import Center from "../utils/Center";
 
 const AuthContainer = (props) => {
-  const navigate = useNavigate();
+  /*const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
   const [disabled, setDisabled] = useState(false);
 
@@ -24,10 +17,10 @@ const AuthContainer = (props) => {
         setErrorMessage(error.code + ": " + error.message);
         setDisabled(false);
       });
-  };
+  };*/
 
   return (
-    <LoginForm />
+    <LoginForm authState={props.authState}/>
   );
 };
 
