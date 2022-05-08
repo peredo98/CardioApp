@@ -15,3 +15,14 @@ ReactDOM.render(
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
+
+import Formulario from './Formulario';
+
+ReactDOM.render(
+	<React.StrictMode>
+		<div className="contenedor">
+			<Formulario />
+		</div>
+	</React.StrictMode>,
+	document.getElementById('root')
+);
