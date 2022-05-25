@@ -20,7 +20,7 @@ const AuthContainer = (props) => {
   };*/
 
   return (
-    <LoginForm authState={props.authState}/>
+    <LoginForm authState={props.authState} />
   );
 };
 
