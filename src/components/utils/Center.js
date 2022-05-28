@@ -12,7 +12,6 @@ const Center = ({ children, height = 100 }) => {
         justifyContent: "center",
         alignItems: "center",
         flexDirection: "column",
-        height: useHeight,
       }}
     >
       {children}

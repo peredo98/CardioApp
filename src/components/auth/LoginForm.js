@@ -47,16 +47,14 @@ const LoginForm = (props) => {
                 <Row>
                     <Col>
                         <Form.Group className="mb-3" controlId="formBasicPassword">
-                            <Form.Label>Email</Form.Label>
-                            <Form.Control type="text" placeholder="Nombre" />
+                            <Form.Control type="text" placeholder="Correo" />
                         </Form.Group>
                     </Col>
                 </Row>
                 <Row>
                     <Col>
                         <Form.Group className="mb-3" controlId="formBasicPassword">
-                            <Form.Label>Contraseña</Form.Label>
-                            <Form.Control type="password" placeholder="Password" />
+                            <Form.Control type="password" placeholder="Contraseña" />
                         </Form.Group>
                     </Col>
                 </Row>
@@ -66,8 +64,9 @@ const LoginForm = (props) => {
                             disabled={disabled}
                             variant="primary"
                             onClick={signInWithGoogle}
+                            style={{backgroundColor: '#C7006A', borderWidth: 0}}
                         >
-                            <GoogleIcon /> Conectate con Google
+                            <GoogleIcon /> Iniciar sesión con Google
                         </Button>
                         <Typography sx={{ mt: 2 }} color={"red"}>
                             {errorMessage}
@@ -79,52 +78,43 @@ const LoginForm = (props) => {
     }else{
         return (
             <Form>
+                <Form.Group className="mb-3" controlId="formBasicPassword">
+                    <Form.Control type="text" placeholder="Nombre" />
+                </Form.Group>
+
                 <Row>
                     <Col>
-                        <Form.Group className="mb" controlId="formBasicPassword">
-                            <Form.Label>Nombre</Form.Label>
-                            <Form.Control type="text" placeholder="Nombre" />
+                        <Form.Group className="mb-3" controlId="formBasicPassword">
+                            <Form.Control type="text" placeholder="Apellido Paterno" />
                         </Form.Group>
                     </Col>
                     <Col>
-                        <Form.Group className="mb" controlId="formBasicPassword">
-                            <Form.Label>Apellido Paterno</Form.Label>
-                            <Form.Control type="text" placeholder="Apellido Paterno" />
+                        <Form.Group className="mb-3" controlId="formBasicPassword">
+                            <Form.Control type="text" placeholder="Apellido Materno" />
                         </Form.Group>
                     </Col>
                 </Row>
 
-                <Form.Group className="mb-3" controlId="formBasicPassword">
-                    <Form.Label>Apellido Materno</Form.Label>
-                    <Form.Control type="text" placeholder="Apellido Materno" />
-                </Form.Group>
-
                 <Form.Group className="mb-3" controlId="formBasicEmail" onChange={(event) => setEmail(event.target.value)}>
-                    <Form.Label>Email address</Form.Label>
-                    <Form.Control type="email" placeholder="Enter email" />
-                    <Form.Text className="text-muted">
-                        We'll never share your email with anyone else.
-                    </Form.Text>
+                    <Form.Control type="email" placeholder="Correo electrónico" />
                 </Form.Group>
 
                 <Row>
                     <Col>
                         <Form.Group className="mb" controlId="formBasicPassword" onChange={(event) => setPassword(event.target.value)}>
-                            <Form.Label>Contraseña</Form.Label>
-                            <Form.Control type="password" placeholder="Password" />
+                            <Form.Control type="password" placeholder="Contraseña" />
                         </Form.Group>
                     </Col>
                     <Col>
                         <Form.Group className="mb" controlId="formBasicPassword">
-                            <Form.Label>Confirmar Contraseña</Form.Label>
-                            <Form.Control type="password" placeholder="Password" />
+                            <Form.Control type="password" placeholder="Confirmar contraseña" />
                         </Form.Group>
                     </Col>
                 </Row>
 
                 <Row>
                     <Col>
-                        <Button className="mt-3" variant="primary" onClick={createUserWithEmailAndPwd}>
+                        <Button className="mt-3" style={{width: '100%', backgroundColor: '#FF6BBA', borderWidth: 0}} variant="primary" onClick={createUserWithEmailAndPwd}>
                             Registrarse
                         </Button>
                     </Col>

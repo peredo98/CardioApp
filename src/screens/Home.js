@@ -335,8 +335,9 @@ export default function DashboardPage(props) {
     $(el2).DataTable({
       'retrieve': true,
       'lengthMenu': [[10, 100, -1], [10, 100, "All"]],
-      'pageLength': 10
+      'pageLength': 10,
     })
+  
     $(el3).DataTable({
       'retrieve': true,
       'lengthMenu': [[10, 100, -1], [10, 100, "All"]],
@@ -446,8 +447,8 @@ export default function DashboardPage(props) {
             <Container maxWidth="lg" className={classes.container}>
               <Grid item xs={12} lg={12}>
                 <h5>Presión</h5>
-                <Paper >
-                  <table class="table stripe" ref={el2 => setEl2(el2)}>
+                <Paper>
+                  <table class="table stripe" ref={el2 => setEl2(el2)} style={{padding: '30px'}}>
                     <thead>
                       <tr>
                         <th>
@@ -584,7 +585,7 @@ export default function DashboardPage(props) {
   return (
     <div className={classes.root}>
       <CssBaseline />
-      <AppBar position="absolute" className={clsx(classes.appBar, open && classes.appBarShift)}>
+      <AppBar position="absolute" style={{ background: '#AC005C' }} className={clsx(classes.appBar, open && classes.appBarShift)} >
         <Toolbar className={classes.toolbar}>
           <IconButton
             edge="start"
@@ -613,7 +614,7 @@ export default function DashboardPage(props) {
           </IconButton>
         </div>
         <Divider />
-        <List>
+        <List style={{ backgroundColor: '#C7006A', height: '100%'}}>
           <ListItem button onClick={() => {
             setPatientDashboard(false)
             setSettings(false)
@@ -648,16 +649,16 @@ export default function DashboardPage(props) {
         <main className={classes.content} show={mainDashboard}>
           <div className={classes.appBarSpacer} />
           <Container maxWidth="lg" className={classes.container}>
-            <Grid container spacing={3}>
-              <Paper>
+            <Grid container spacing={3} >
+              <Paper style={{width: '100%', height: '100%'}}>
                 <table class="table" ref={el => setEl(el)}>
                   <thead>
                     <tr>
                       <th>Nombre</th>
-                      <th>Última presión</th>
+                      <th>Última toma de presión</th>
                       <th>Presión (mmHg)</th>
                       <th>Pulso</th>
-                      <th>Último peso</th>
+                      <th>Última medida de peso</th>
                       <th>Peso</th>
                     </tr>
                   </thead>
@@ -703,8 +704,8 @@ export default function DashboardPage(props) {
         <div className={classes.appBarSpacer} />
         <Container maxWidth="lg" className={classes.container}>
           <Grid container spacing={3}>
-            <Paper >
-              <h4>Cambiar contraseña</h4>
+            <Paper style={{width: '100%', height: '100%'}}>
+              <h4 style={{padding: '1em'}}>Cambiar contraseña</h4>
               <form className={classes.form} noValidate onSubmit={e => { e.preventDefault(); }}>
                 <TextField
                   variant="outlined"
@@ -737,6 +738,7 @@ export default function DashboardPage(props) {
                   type="submit"
                   className={classes.submit}
                   onClick={resetPassword}
+                  style={{backgroundColor: '#FF0088'}}
                 >
                   Reset Password
           </Button>
@@ -748,8 +750,8 @@ export default function DashboardPage(props) {
         </Container>
         <Container maxWidth="lg" className={classes.container}>
           <Grid container spacing={3}>
-            <Paper >
-              <h4>Añadir Paciente</h4>
+            <Paper style={{width: '100%', height: '100%'}}>
+              <h4 style={{padding: '1em'}}>Añadir Paciente</h4>
               <form>
                 <FormControl className={classes.formControl}>
                   <br></br>
@@ -767,6 +769,7 @@ export default function DashboardPage(props) {
               <Button variant="contained"
                 color="primary"
                 type="submit"
+                style={{backgroundColor: '#FF0088'}}
                 className={classes.submit} onClick={addPatient}>
                 Agregar
   </Button>
