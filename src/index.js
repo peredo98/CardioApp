@@ -7,6 +7,8 @@ import reportWebVitals from './reportWebVitals';
 ReactDOM.render(
   <React.StrictMode>
     <App />
+    <FormularioSemanal />
+    
   </React.StrictMode>,
   document.getElementById('root')
 );
