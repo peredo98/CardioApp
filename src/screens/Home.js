@@ -354,8 +354,8 @@ export default function DashboardPage(props) {
             id="demo-simple-select"
             disableUnderline
           >
-            <MenuItem style={{ backgroundColor: 'white' }}>Email: {foundPatient.email}</MenuItem>
-          </Select><Button onClick={() => setModalShow2(true)}>Edit</Button></h2>
+            <MenuItem style={{ backgroundColor: 'white' }}>Correo: {foundPatient.email}</MenuItem>
+          </Select><Button onClick={() => setModalShow2(true)}>Editar</Button></h2>
           <Grid container spacing={3}>
 
             <Grid item xs={6} md={3} lg={3}>
@@ -568,6 +568,11 @@ export default function DashboardPage(props) {
     
   }
 
+  const buttonStyle = {
+    backgroundColor: '#FF0088', 
+    margin: '1em'
+  }
+
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
   const handleDrawerOpen = () => {
@@ -713,11 +718,12 @@ export default function DashboardPage(props) {
                   required
                   fullWidth
                   id="email"
-                  label="Password"
+                  label="Nueva contraseña"
                   type="Password"
                   name="email"
                   autoFocus
                   onChange={(event) => setPassword1(event.target.value)}
+                  style={{marginLeft: '1em', width: '90%'}}
                 />
                 <TextField
                   variant="outlined"
@@ -725,11 +731,12 @@ export default function DashboardPage(props) {
                   required
                   fullWidth
                   name="password"
-                  label="Confirm Password"
+                  label="Confirmar nueva contraseña"
                   type="password"
                   id="password"
                   autoComplete="current-password"
                   onChange={(event) => setPassword2(event.target.value)}
+                  style={{marginLeft: '1em', width: '90%'}}
                 />
 
                 <Button
@@ -738,9 +745,9 @@ export default function DashboardPage(props) {
                   type="submit"
                   className={classes.submit}
                   onClick={resetPassword}
-                  style={{backgroundColor: '#FF0088'}}
+                  style={buttonStyle}
                 >
-                  Reset Password
+                  Reiniciar Contraseña
           </Button>
                 <p>{serverMessage}</p>
               </form>
@@ -753,13 +760,12 @@ export default function DashboardPage(props) {
             <Paper style={{width: '100%', height: '100%'}}>
               <h4 style={{padding: '1em'}}>Añadir Paciente</h4>
               <form>
-                <FormControl className={classes.formControl}>
-                  <br></br>
-                  <br></br>
-                  <InputLabel id="demo-simple-select-label">Nombre de paciente</InputLabel>
+                <FormControl className={classes.formControl} style={{marginLeft: '1em'}}>
+                  <InputLabel id="demo-simple-select-label" style={{width: '200%'}}>Nombre de paciente</InputLabel>
                   <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
+                    style={{width: '200%'}}
                     onChange={(event) => {}}
                   >
                   </Select>
@@ -769,10 +775,10 @@ export default function DashboardPage(props) {
               <Button variant="contained"
                 color="primary"
                 type="submit"
-                style={{backgroundColor: '#FF0088'}}
+                style={buttonStyle}
                 className={classes.submit} onClick={addPatient}>
                 Agregar
-  </Button>
+              </Button>
             </Paper>
           </Grid>
         </Container>
@@ -781,10 +787,10 @@ export default function DashboardPage(props) {
 
       <Modal show={modalShow} onHide={() => setModalShow(false)} style={{ marginTop: '50px' }}>
         <Modal.Header closeButton>
-          <Modal.Title>Patient Notification</Modal.Title>
+          <Modal.Title>Notificacion del paciente</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p>Your notification has been sent!</p>
+          <p>Su notificación ha sido enviada!</p>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="primary" onClick={() => setModalShow(false)}>
@@ -795,7 +801,7 @@ export default function DashboardPage(props) {
 
       <Modal show={modalShow2} onHide={() => setModalShow2(false)} style={{ marginTop: '50px' }}>
         <Modal.Header closeButton>
-          <Modal.Title>Edit Patient</Modal.Title>
+          <Modal.Title>Editar paciente</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <TextField
@@ -804,7 +810,7 @@ export default function DashboardPage(props) {
             required
             style={{ marginLeft: '15px', width: '40%' }}
             id="name"
-            label="First Name"
+            label="Nombre"
             name="name"
             autoFocus
             value={selectedPatientFirstName}
@@ -816,7 +822,7 @@ export default function DashboardPage(props) {
             required
             style={{ marginLeft: '15px', width: '40%' }}
             name="name"
-            label="Last Name"
+            label="Apellidos"
             id="name"
             value={selectedPatientLastName}
             onChange={(event) => setSelectedPatientLastName(event.target.value)}
@@ -829,7 +835,7 @@ export default function DashboardPage(props) {
             required
             style={{ marginLeft: '15px', width: '40%' }}
             name="email"
-            label="Email Address"
+            label="Correo"
             value={selectedPatientEmail}
             onChange={(event) => setSelectedPatientEmail(event.target.value)}
           />
@@ -840,7 +846,7 @@ export default function DashboardPage(props) {
           <Button variant="secondary" onClick={() => setModalShow2(false)}>
             Cerrar
           </Button>
-          <Button onClick={deletePatient}>Delete</Button>
+          <Button onClick={deletePatient}>Borrar</Button>
           <Button variant="primary" onClick={savePatientChanges}>
             Guardar
           </Button>
