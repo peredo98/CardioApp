@@ -43,6 +43,12 @@ import moment from 'moment-timezone';
 import 'moment/locale/fr';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import {
+  child,
+  get,
+  getDatabase,
+  ref,
+} from "firebase/database";
 
 const $ = require('jquery')
 $.DataTable = require('datatables.net')
@@ -195,12 +201,24 @@ export default function DashboardPage(props) {
   ,systolic:127,diastolic:77,pulse:68,unit:0,_created_at:"2022-05-05T07:06:10.427Z",_updated_at:"2022-05-05T07:06:10.427Z"},
   {_id:"jwu0Y6VpV6", systolic:131,diastolic:89,pulse:75,unit:0,_created_at:"2022-05-06T07:04:52.072Z",_updated_at:"2022-05-06T07:04:52.072Z"}
   ]}]
-  const [patients, setPatients] = React.useState(_patients)
+  const [patients, setPatients] = React.useState([])
 
   useEffect(() => {
-    sessionStorage.patients = JSON.stringify(patients)
-  }, [])
 
+    sessionStorage.patients = JSON.stringify(patients)
+  }, [patients])
+/*
+  useEffect(() => {
+    const onValueChange = database()
+      .ref(`/users/${userId}`)
+      .on('value', snapshot => {
+        console.log('User data: ', snapshot.val());
+      });
+
+    // Stop listening for updates when no longer required
+    return () => database().ref(`/users/${userId}`).off('value', onValueChange);
+  }, [userId]);
+*/
   function password_check(pass) {
     var regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (regex.exec(pass) == null) {

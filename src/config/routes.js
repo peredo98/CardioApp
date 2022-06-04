@@ -1,5 +1,6 @@
 import Home from "../screens/Home";
 import Login from "../screens/Login";
+import Paciente from "../screens/Paciente";
 
 const routes = [
   {
@@ -12,6 +13,12 @@ const routes = [
     path: "/login",
     component: Login,
     name: "Login Screen",
+    protected: false,
+  },
+  {
+    path: "/paciente",
+    component: Paciente,
+    name: "Home | Paciente",
     protected: false,
   },
 ];
