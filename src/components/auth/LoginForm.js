@@ -5,7 +5,8 @@ import GoogleIcon from "@mui/icons-material/Google";
 import Center from "../utils/Center";
 import { signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { auth, Providers } from "../../config/firebase";
+import { auth, Providers, db} from "../../config/firebase";
+import { setDoc, doc } from "firebase/firestore";
 
 const LoginForm = (props) => {
     const navigate = useNavigate();
@@ -49,8 +50,13 @@ const LoginForm = (props) => {
         setDisabled(true);
         createUserWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
-                const user = userCredential.user;
-                console.log(user);
+                // const user = userCredential.user;
+                setDoc(doc(db, "Doctor", email), {
+                    id: email
+                }).then(r => {
+                    // TODO: Redirect
+                    console.log("Document created - ref: " + r);
+                });
             })
             .catch((error) => {
                 console.log("Error: " + error.message);
@@ -62,7 +68,7 @@ const LoginForm = (props) => {
             <Container>
                 <Row>
                     <Col>
-                        <Form.Group className="mb-3" controlId="formBasicPassword">
+                        <Form.Group className="mb-3">
                             <Form.Label>Email</Form.Label>
                             <Form.Control
                                 type="text"
@@ -75,7 +81,7 @@ const LoginForm = (props) => {
                 </Row>
                 <Row>
                     <Col>
-                        <Form.Group className="mb-3" controlId="formBasicPassword">
+                        <Form.Group className="mb-3">
                             <Form.Label>Contraseña</Form.Label>
                             <Form.Control
                                 type="password"
@@ -126,7 +132,7 @@ const LoginForm = (props) => {
                         </Form.Group>
                     </Col>
                     <Col>
-                        <Form.Group className="mb" controlId="formBasicPassword">
+                        <Form.Group className="mb">
                             <Form.Label>Apellido Paterno</Form.Label>
                             <Form.Control
                                 type="text"
@@ -138,7 +144,7 @@ const LoginForm = (props) => {
                     </Col>
                 </Row>
 
-                <Form.Group className="mb-3" controlId="formBasicPassword">
+                <Form.Group className="mb-3">
                     <Form.Label>Apellido Materno</Form.Label>
                     <Form.Control
                         type="text"
@@ -163,7 +169,7 @@ const LoginForm = (props) => {
 
                 <Row>
                     <Col>
-                        <Form.Group className="mb" controlId="formBasicPassword" onChange={(event) => setPassword(event.target.value)}>
+                        <Form.Group className="mb" onChange={(event) => setPassword(event.target.value)}>
                             <Form.Label>Contraseña</Form.Label>
                             <Form.Control
                                 type="password"
@@ -174,7 +180,7 @@ const LoginForm = (props) => {
                         </Form.Group>
                     </Col>
                     <Col>
-                        <Form.Group className="mb" controlId="formBasicPassword">
+                        <Form.Group className="mb">
                             <Form.Label>Confirmar Contraseña</Form.Label>
                             <Form.Control type="password" placeholder="Password" />
                         </Form.Group>
