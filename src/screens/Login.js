@@ -1,4 +1,5 @@
-import { Box, Tab, Tabs } from "@mui/material";
+import { Box, Tab, Tabs, Typography, Divider } from "@mui/material";
+
 import React from "react";
 import { useSearchParams } from "react-router-dom";
 import AuthContainer from "../components/auth/AuthContainer";
@@ -37,21 +38,24 @@ const Login = (props) => {
         display={"flex"}
         alignItems={"center"}
         flexDirection={"column"}
-        boxShadow={2}
-        margin={3}
+        marginTop='3em'
       >
+        <Box>
+          <Typography variant="h1" style={{ color: "#FF0088" }}>CardioApp</Typography>
+        </Box>
+        <Divider variant="middle" />
         <Box sx={{ borderBottom: 1, borderColor: "divider", width: "100%" }}>
-          <Tabs value={value} onChange={handleChange} variant="fullWidth">
-            <Tab sx={{ px: { lg: 20, xs: 6 } }} label="Login" />
-            <Tab sx={{ px: { lg: 16, xs: 6 } }} label="Register" />
+          <Tabs TabIndicatorProps={{style: {background:'#FF0088'}}} textColor='secondary' value={value} onChange={handleChange} variant="fullWidth">
+            <Tab sx={{ px: { lg: 16, xs: 6 }, fontSize: '12px' }} label="Iniciar sesión"/>
+            <Tab sx={{ px: { lg: 16, xs: 6 } }} label="Registrarse" />
           </Tabs>
         </Box>
         {/* login */}
-        <TabPanel value={value} index={0}>
-          <AuthContainer authState={value}/>
+        <TabPanel value={value} index={0} >
+          <AuthContainer authState={value} />
         </TabPanel>
         {/* register */}
-        <TabPanel value={value} index={1}>
+        <TabPanel value={value} index={1} >
           <AuthContainer authState={value}/>
         </TabPanel>
       </Box>
@@ -63,7 +67,7 @@ const TabPanel = ({ children, value, index }) => {
   return (
     <div role="tabpanel" hidden={value !== index}>
       {value === index && (
-        <Box sx={{ p: 3 }}>
+        <Box sx={{ p: 3, display: 'flex', position:'relative', alignSelf:'start', width: '100%' }}>
           <>{children}</>
         </Box>
       )}
