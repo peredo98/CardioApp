@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import { Form, Row, Col, Container } from "react-bootstrap";
+import { Form, Row, Col, Container, Select } from "react-bootstrap";
 import { Typography, Button } from "@mui/material";
 import GoogleIcon from "@mui/icons-material/Google";
 import Center from "../utils/Center";
@@ -7,6 +7,7 @@ import { signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPass
 import { useNavigate } from "react-router-dom";
 import { auth, Providers, db} from "../../config/firebase";
 import { setDoc, doc } from "firebase/firestore";
+import login from "../../screens/Login";
 
 const LoginForm = (props) => {
     const navigate = useNavigate();
@@ -15,8 +16,10 @@ const LoginForm = (props) => {
     const [password, setPassword] = useState("");
     const [email, setEmail] = useState("");
     const [name, setName] = useState("");
+    const [userType, setUserType] = useState("");
     const [paternalSurname, setPaternalSurname] = useState("");
     const [maternalSurname, setMaternalSurname] = useState("");
+    const [validated, setValidated] = useState(false);
 
     const signInWithGoogle = () => {
         setDisabled(true);
@@ -46,84 +49,128 @@ const LoginForm = (props) => {
             });
     }
 
-    const createUserWithEmailAndPwd = () => {
-        setDisabled(true);
-        createUserWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
-                // const user = userCredential.user;
-                setDoc(doc(db, "Doctor", email), {
-                    id: email
-                }).then(r => {
-                    // TODO: Redirect
-                    console.log("Document created - ref: " + r);
+    const createUserWithEmailAndPwd = (event) => {
+        const form = event.currentTarget;
+        event.preventDefault();
+        event.stopPropagation();
+        if(form.checkValidity() === false) {
+            setValidated(true);
+        } else {
+            setDisabled(true);
+            createUserWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    // const user = userCredential.user;
+                    console.log(userType);
+                    if(userType === "Doctor") {
+                        setDoc(doc(db, "Doctor", email), {
+                            id: email,
+                            pacientes: [],
+                            type: userType
+                        }).then(r => {
+                            // TODO: Redirect
+                            console.log("Document created - ref: " + r);
+                            navigate("../", {replace: true});
+                        });
+                    } else {
+                        setDoc(doc(db, "Paciente", email), {
+                            id: email,
+                            type: userType
+                        }).then(r => {
+                            // TODO: Redirect
+                            console.log("Document created - ref: " + r);
+                            navigate("../paciente", {replace: true});
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.log("Error: " + error.message);
                 });
-            })
-            .catch((error) => {
-                console.log("Error: " + error.message);
-            });
+        }
     };
 
     if(props.authState === 0){
         return (
-            <Container>
-                <Row>
-                    <Col>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Email</Form.Label>
-                            <Form.Control
-                                type="text"
-                                placeholder="Nombre"
-                                value={email}
-                                onChange={event => setEmail(event.target.value)}
-                            />
-                        </Form.Group>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Contraseña</Form.Label>
-                            <Form.Control
-                                type="password"
-                                placeholder="Password"
-                                value={password}
-                                onChange={event => setPassword(event.target.value)}
-                            />
-                        </Form.Group>
-                    </Col>
-                </Row>
-                <Row>
-                    <Center height={"auto"}>
-                        <Button
-                            disabled={disabled}
-                            variant="outlined"
-                            onClick={signInWithEmailAndPwd}
-                            sx={{ marginBottom: 1, width: "100%" }}
+            <Form>
+                <Container>
+                    <Row>
+                        <Col>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Email</Form.Label>
+                                <Form.Control
+                                    required
+                                    type="text"
+                                    placeholder="Nombre"
+                                    value={email}
+                                    onChange={event => setEmail(event.target.value)}
+                                />
+                            </Form.Group>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Contraseña</Form.Label>
+                                <Form.Control
+                                    required
+                                    type="password"
+                                    placeholder="Password"
+                                    value={password}
+                                    onChange={event => setPassword(event.target.value)}
+                                />
+                            </Form.Group>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Center height={"auto"}>
+                            <Button
+                                disabled={disabled}
+                                variant="outlined"
+                                onClick={signInWithEmailAndPwd}
+                                sx={{ marginBottom: 1, width: "100%" }}
                             >
-                            Conectate
-                        </Button>
-                        <Button
-                            disabled={disabled}
-                            variant="contained"
-                            onClick={signInWithGoogle}
-                        >
-                            <GoogleIcon /> Conectate con Google
-                        </Button>
-                        <Typography sx={{ mt: 2 }} color={"red"}>
-                            {errorMessage}
-                        </Typography>
-                    </Center>
-                </Row>
-            </Container>
+                                Conectate
+                            </Button>
+                            <Button
+                                disabled={disabled}
+                                variant="contained"
+                                onClick={signInWithGoogle}
+                            >
+                                <GoogleIcon /> Conectate con Google
+                            </Button>
+                            <Typography sx={{ mt: 2 }} color={"red"}>
+                                {errorMessage}
+                            </Typography>
+                        </Center>
+                    </Row>
+                </Container>
+            </Form>
         );
     }else{
         return (
-            <Form>
+            <Form
+                noValidate
+                validated={validated}
+                onSubmit={createUserWithEmailAndPwd}
+            >
                 <Row className="mb-3">
                     <Col>
-                        <Form.Group className="mb" controlId="formBasicPassword">
+                        <Form.Group className="mb">
+                            <Form.Label>Tipo de usuario</Form.Label>
+                            <Form.Select
+                                required
+                                onChange={event => setUserType(event.target.value)}
+                            >
+                                <option>Selecciona...</option>
+                                <option value="Doctor">Doctor</option>
+                                <option value="Paciente">Paciente</option>
+                            </Form.Select>
+                        </Form.Group>
+                    </Col>
+                    <Col>
+                        <Form.Group className="mb">
                             <Form.Label>Nombre</Form.Label>
                             <Form.Control
+                                required
                                 type="text"
                                 placeholder="Nombre"
                                 onChange={event => setName(event.target.value)}
@@ -131,10 +178,14 @@ const LoginForm = (props) => {
                             />
                         </Form.Group>
                     </Col>
+                </Row>
+
+                <Row>
                     <Col>
                         <Form.Group className="mb">
                             <Form.Label>Apellido Paterno</Form.Label>
                             <Form.Control
+                                required
                                 type="text"
                                 placeholder="Apellido Paterno"
                                 onChange={event => setPaternalSurname(event.target.value)}
@@ -142,21 +193,24 @@ const LoginForm = (props) => {
                             />
                         </Form.Group>
                     </Col>
+                    <Col>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Apellido Materno</Form.Label>
+                            <Form.Control
+                                required
+                                type="text"
+                                placeholder="Apellido Materno"
+                                onChange={event => setMaternalSurname(event.target.value)}
+                                value={maternalSurname}
+                            />
+                        </Form.Group>
+                    </Col>
                 </Row>
-
-                <Form.Group className="mb-3">
-                    <Form.Label>Apellido Materno</Form.Label>
-                    <Form.Control
-                        type="text"
-                        placeholder="Apellido Materno"
-                        onChange={event => setMaternalSurname(event.target.value)}
-                        value={maternalSurname}
-                    />
-                </Form.Group>
 
                 <Form.Group className="mb-3" controlId="formBasicEmail" onChange={(event) => setEmail(event.target.value)}>
                     <Form.Label>Email address</Form.Label>
                     <Form.Control
+                        required
                         type="email"
                         placeholder="Enter email"
                         onChange={event => setEmail(event.target.value)}
@@ -172,6 +226,7 @@ const LoginForm = (props) => {
                         <Form.Group className="mb" onChange={(event) => setPassword(event.target.value)}>
                             <Form.Label>Contraseña</Form.Label>
                             <Form.Control
+                                required
                                 type="password"
                                 placeholder="Password"
                                 onChange={event => setPassword(event.target.value)}
@@ -182,7 +237,10 @@ const LoginForm = (props) => {
                     <Col>
                         <Form.Group className="mb">
                             <Form.Label>Confirmar Contraseña</Form.Label>
-                            <Form.Control type="password" placeholder="Password" />
+                            <Form.Control
+                                required
+                                type="password"
+                                placeholder="Password" />
                         </Form.Group>
                     </Col>
                 </Row>
@@ -191,9 +249,9 @@ const LoginForm = (props) => {
                     <Col>
                         <Center height="auto">
                             <Button
+                                type="submit"
                                 className="mt-3"
                                 variant="outlined"
-                                onClick={createUserWithEmailAndPwd}
                             >
                                 Registrarse
                             </Button>
