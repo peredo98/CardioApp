@@ -1,11 +1,13 @@
 import React, {useState} from "react";
-import { Form, Button, Row, Col, Container } from "react-bootstrap";
-import { Typography } from "@mui/material";
+import { Form, Row, Col, Container, Select } from "react-bootstrap";
+import { Typography, Button } from "@mui/material";
 import GoogleIcon from "@mui/icons-material/Google";
 import Center from "../utils/Center";
-import { signInWithPopup, createUserWithEmailAndPassword } from "firebase/auth";
+import { signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { auth, Providers } from "../../config/firebase";
+import { auth, Providers, db} from "../../config/firebase";
+import { setDoc, doc } from "firebase/firestore";
+import login from "../../screens/Login";
 
 const LoginForm = (props) => {
     const navigate = useNavigate();
@@ -13,6 +15,11 @@ const LoginForm = (props) => {
     const [disabled, setDisabled] = useState(false);
     const [password, setPassword] = useState("");
     const [email, setEmail] = useState("");
+    const [name, setName] = useState("");
+    const [userType, setUserType] = useState("");
+    const [paternalSurname, setPaternalSurname] = useState("");
+    const [maternalSurname, setMaternalSurname] = useState("");
+    const [validated, setValidated] = useState(false);
 
     const signInWithGoogle = () => {
         setDisabled(true);
@@ -28,95 +35,227 @@ const LoginForm = (props) => {
             });
     };
 
-    const createUserWithEmailAndPwd = (event) => {
-        setDisabled(true);
-        console.log("Email: " + email + " Pwd: " + password);
-        createUserWithEmailAndPassword(auth, email, password)
+    const signInWithEmailAndPwd = () => {
+        signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
+                setDisabled(true);
                 const user = userCredential.user;
                 console.log(user);
             })
             .catch((error) => {
-                console.log("Error: " + error.message);
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                console.log(errorCode + errorMessage);
             });
+    }
+
+    const createUserWithEmailAndPwd = (event) => {
+        const form = event.currentTarget;
+        event.preventDefault();
+        event.stopPropagation();
+        if(form.checkValidity() === false) {
+            setValidated(true);
+        } else {
+            setDisabled(true);
+            createUserWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    // const user = userCredential.user;
+                    console.log(userType);
+                    if(userType === "Doctor") {
+                        setDoc(doc(db, "Doctor", email), {
+                            id: email,
+                            pacientes: [],
+                            type: userType
+                        }).then(r => {
+                            // TODO: Redirect
+                            console.log("Document created - ref: " + r);
+                            navigate("../", {replace: true});
+                        });
+                    } else {
+                        setDoc(doc(db, "Paciente", email), {
+                            id: email,
+                            type: userType
+                        }).then(r => {
+                            // TODO: Redirect
+                            console.log("Document created - ref: " + r);
+                            navigate("../paciente", {replace: true});
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.log("Error: " + error.message);
+                });
+        }
     };
 
     if(props.authState === 0){
         return (
-            <Container>
-                <Row>
-                    <Col>
-                        <Form.Group className="mb-3" controlId="formBasicPassword">
-                            <Form.Control type="text" placeholder="Correo" />
-                        </Form.Group>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col>
-                        <Form.Group className="mb-3" controlId="formBasicPassword">
-                            <Form.Control type="password" placeholder="Contraseña" />
-                        </Form.Group>
-                    </Col>
-                </Row>
-                <Row>
-                    <Center height={"auto"}>
-                        <Button
-                            disabled={disabled}
-                            variant="primary"
-                            onClick={signInWithGoogle}
-                            style={{backgroundColor: '#C7006A', borderWidth: 0}}
-                        >
-                            <GoogleIcon /> Iniciar sesión con Google
-                        </Button>
-                        <Typography sx={{ mt: 2 }} color={"red"}>
-                            {errorMessage}
-                        </Typography>
-                    </Center>
-                </Row>
-            </Container>
+            <Form>
+                <Container>
+                    <Row>
+                        <Col>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Email</Form.Label>
+                                <Form.Control
+                                    required
+                                    type="text"
+                                    placeholder="Nombre"
+                                    value={email}
+                                    onChange={event => setEmail(event.target.value)}
+                                />
+                            </Form.Group>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <Form.Group className="mb-3">
+                                <Form.Label>Contraseña</Form.Label>
+                                <Form.Control
+                                    required
+                                    type="password"
+                                    placeholder="Password"
+                                    value={password}
+                                    onChange={event => setPassword(event.target.value)}
+                                />
+                            </Form.Group>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Center height={"auto"}>
+                            <Button
+                                disabled={disabled}
+                                variant="outlined"
+                                onClick={signInWithEmailAndPwd}
+                                sx={{ marginBottom: 1, width: "100%" }}
+                            >
+                                Conectate
+                            </Button>
+                            <Button
+                                disabled={disabled}
+                                variant="contained"
+                                onClick={signInWithGoogle}
+                            >
+                                <GoogleIcon /> Conectate con Google
+                            </Button>
+                            <Typography sx={{ mt: 2 }} color={"red"}>
+                                {errorMessage}
+                            </Typography>
+                        </Center>
+                    </Row>
+                </Container>
+            </Form>
         );
     }else{
         return (
-            <Form>
-                <Form.Group className="mb-3" controlId="formBasicPassword">
-                    <Form.Control type="text" placeholder="Nombre" />
-                </Form.Group>
-
-                <Row>
+            <Form
+                noValidate
+                validated={validated}
+                onSubmit={createUserWithEmailAndPwd}
+            >
+                <Row className="mb-3">
                     <Col>
-                        <Form.Group className="mb-3" controlId="formBasicPassword">
-                            <Form.Control type="text" placeholder="Apellido Paterno" />
+                        <Form.Group className="mb">
+                            <Form.Label>Tipo de usuario</Form.Label>
+                            <Form.Select
+                                required
+                                onChange={event => setUserType(event.target.value)}
+                            >
+                                <option>Selecciona...</option>
+                                <option value="Doctor">Doctor</option>
+                                <option value="Paciente">Paciente</option>
+                            </Form.Select>
                         </Form.Group>
                     </Col>
                     <Col>
-                        <Form.Group className="mb-3" controlId="formBasicPassword">
-                            <Form.Control type="text" placeholder="Apellido Materno" />
+                        <Form.Group className="mb">
+                            <Form.Label>Nombre</Form.Label>
+                            <Form.Control
+                                required
+                                type="text"
+                                placeholder="Nombre"
+                                onChange={event => setName(event.target.value)}
+                                value={name}
+                            />
+                        </Form.Group>
+                    </Col>
+                </Row>
+
+                <Row>
+                    <Col>
+                        <Form.Group className="mb">
+                            <Form.Label>Apellido Paterno</Form.Label>
+                            <Form.Control
+                                required
+                                type="text"
+                                placeholder="Apellido Paterno"
+                                onChange={event => setPaternalSurname(event.target.value)}
+                                value={paternalSurname}
+                            />
+                        </Form.Group>
+                    </Col>
+                    <Col>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Apellido Materno</Form.Label>
+                            <Form.Control
+                                required
+                                type="text"
+                                placeholder="Apellido Materno"
+                                onChange={event => setMaternalSurname(event.target.value)}
+                                value={maternalSurname}
+                            />
                         </Form.Group>
                     </Col>
                 </Row>
 
                 <Form.Group className="mb-3" controlId="formBasicEmail" onChange={(event) => setEmail(event.target.value)}>
-                    <Form.Control type="email" placeholder="Correo electrónico" />
+                    <Form.Label>Email address</Form.Label>
+                    <Form.Control
+                        required
+                        type="email"
+                        placeholder="Enter email"
+                        onChange={event => setEmail(event.target.value)}
+                        value={email}
+                    />
+                    <Form.Text className="text-muted">
+                        We'll never share your email with anyone else.
+                    </Form.Text>
                 </Form.Group>
 
                 <Row>
                     <Col>
-                        <Form.Group className="mb" controlId="formBasicPassword" onChange={(event) => setPassword(event.target.value)}>
-                            <Form.Control type="password" placeholder="Contraseña" />
+                        <Form.Group className="mb" onChange={(event) => setPassword(event.target.value)}>
+                            <Form.Label>Contraseña</Form.Label>
+                            <Form.Control
+                                required
+                                type="password"
+                                placeholder="Password"
+                                onChange={event => setPassword(event.target.value)}
+                                value={password}
+                            />
                         </Form.Group>
                     </Col>
                     <Col>
-                        <Form.Group className="mb" controlId="formBasicPassword">
-                            <Form.Control type="password" placeholder="Confirmar contraseña" />
+                        <Form.Group className="mb">
+                            <Form.Label>Confirmar Contraseña</Form.Label>
+                            <Form.Control
+                                required
+                                type="password"
+                                placeholder="Password" />
                         </Form.Group>
                     </Col>
                 </Row>
 
                 <Row>
                     <Col>
-                        <Button className="mt-3" style={{width: '100%', backgroundColor: '#FF6BBA', borderWidth: 0}} variant="primary" onClick={createUserWithEmailAndPwd}>
-                            Registrarse
-                        </Button>
+                        <Center height="auto">
+                            <Button
+                                type="submit"
+                                className="mt-3"
+                                variant="outlined"
+                            >
+                                Registrarse
+                            </Button>
+                        </Center>
                     </Col>
                 </Row>
             </Form>
