@@ -17,6 +17,9 @@ import Paper from "@material-ui/core/Paper";
 import Link from "@material-ui/core/Link";
 import MenuIcon from "@material-ui/icons/Menu";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import TodayIcon from "@material-ui/icons/Today";
+import DateRangeIcon from "@material-ui/icons/DateRange";
+import EventIcon from "@material-ui/icons/Event";
 import NotificationsIcon from "@material-ui/icons/Notifications";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
@@ -52,6 +55,7 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { child, get, getDatabase, ref } from "firebase/database";
 import { Formik, Form, Field, ErrorMessage } from "formik";
+import { CalendarToday } from "@material-ui/icons";
 
 const FormularioDiario = () => {
   const [formularioEnviado, cambiarFormularioEnviado] = useState(false);
@@ -108,7 +112,7 @@ const FormularioDiario = () => {
         }}
       >
         {({ errors }) => (
-          <Form className="formulario">
+          <Form className="formulario" style={{ width: "100%" }}>
             <div>
               <label htmlFor="sistolica">Presión sistólica</label>
               <Field
@@ -180,7 +184,9 @@ const FormularioDiario = () => {
                 placeholder="Comentarios para el doctor"
               />
             </div>
-            <button type="submit">Enviar</button>
+            <button style={{ backgroundColor: "#ac005c" }} type="submit">
+              Enviar
+            </button>
             {formularioEnviado && (
               <p className="exito">Formulario enviado con éxito!</p>
             )}
@@ -230,7 +236,10 @@ const FormularioSemanal = () => {
         }}
       >
         {({ errors }) => (
-          <Form className="formulario">
+          <Form
+            className="formulario"
+            style={{ width: "100%", height: "100vh" }}
+          >
             <div>
               <label htmlFor="diametroAbdominal">Diametro abdominal</label>
               <Field
@@ -261,7 +270,9 @@ const FormularioSemanal = () => {
               />
             </div>
 
-            <button type="submit">Enviar</button>
+            <button style={{ backgroundColor: "#ac005c" }} type="submit">
+              Enviar
+            </button>
             {formularioEnviado && (
               <p className="exito">Formulario enviado con éxito!</p>
             )}
@@ -327,7 +338,7 @@ const FormularioMensual = () => {
         }}
       >
         {({ errors }) => (
-          <Form className="formulario">
+          <Form className="formulario" style={{ width: "100%" }}>
             <div>
               <label htmlFor="glucosa">Glucosa</label>
               <Field
@@ -393,7 +404,9 @@ const FormularioMensual = () => {
               />
             </div>
 
-            <button type="submit">Enviar</button>
+            <button style={{ backgroundColor: "#ac005c" }} type="submit">
+              Enviar
+            </button>
             {formularioEnviado && (
               <p className="exito">Formulario enviado con éxito!</p>
             )}
@@ -593,9 +606,9 @@ const Dashboard = (props) => {
             }}
           >
             <ListItemIcon>
-              <DashboardIcon />
+              <TodayIcon />
             </ListItemIcon>
-            <ListItemText primary="Dashboard" />
+            <ListItemText primary="Diario" />
           </ListItem>
           <ListItem
             button
@@ -607,9 +620,9 @@ const Dashboard = (props) => {
             }}
           >
             <ListItemIcon>
-              <DashboardIcon />
+              <DateRangeIcon />
             </ListItemIcon>
-            <ListItemText primary="Dashboard" />
+            <ListItemText primary="Semanal" />
           </ListItem>
           <ListItem
             button
@@ -621,14 +634,14 @@ const Dashboard = (props) => {
             }}
           >
             <ListItemIcon>
-              <DashboardIcon />
+              <CalendarToday />
             </ListItemIcon>
-            <ListItemText primary="Dashboard" />
+            <ListItemText primary="Mensual" />
           </ListItem>
           <ListItem
             button
             onClick={() => {
-              setFormularioDiario(true);
+              setFormularioDiario(false);
               setFormularioSemanal(false);
               setFormularioMensual(false);
               setSettings(true);
@@ -709,43 +722,6 @@ const Dashboard = (props) => {
                   </Button>
                   <p>{serverMessage}</p>
                 </form>
-              </Paper>
-            </Grid>
-          </Container>
-          <Container maxWidth="lg" className={classes.container}>
-            <Grid container spacing={3}>
-              <Paper style={{ width: "100%", height: "100%" }}>
-                <h4 style={{ padding: "1em" }}>Añadir Paciente</h4>
-                <form>
-                  <FormControl
-                    className={classes.formControl}
-                    style={{ marginLeft: "1em" }}
-                  >
-                    <InputLabel
-                      id="demo-simple-select-label"
-                      style={{ width: "200%" }}
-                    >
-                      Nombre de paciente
-                    </InputLabel>
-                    <Select
-                      labelId="demo-simple-select-label"
-                      id="demo-simple-select"
-                      style={{ width: "200%" }}
-                      onChange={(event) => {}}
-                    ></Select>
-                  </FormControl>
-                  <p>{serverMessage2}</p>
-                </form>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  type="submit"
-                  style={buttonStyle}
-                  className={classes.submit}
-                  onClick={addPatient}
-                >
-                  Agregar
-                </Button>
               </Paper>
             </Grid>
           </Container>
