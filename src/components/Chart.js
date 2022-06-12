@@ -37,7 +37,7 @@ export default function Chart(props) {
   var timeZone = props.timeZone
   var data = []
   for (var i =0; i<dataArray.length; i++) {
-    var taken = moment(dataArray[i]._created_at).tz(timeZone).format('MM/DD/YY');
+    var taken = moment(dataArray[i]._created_at).tz(timeZone).format('MM/DD/YY HH:mm');
     console.log(taken)
    
     var obj = {

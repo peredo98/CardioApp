@@ -387,7 +387,7 @@ export default function DashboardPage(props) {
             <Grid item xs={6} md={3} lg={3}>
               <Paper className={fixedHeightPaper}>
                 <Container>
-                  <h4 style={{ textAlign: 'center', marginTop: '40px' }}>{avgBPM}</h4>
+                  <h4 style={{ textAlign: 'center', marginTop: '40px' }}>{avgBPM.toFixed(0)}</h4>
                   <h5 style={{ textAlign: 'center' }}>Pulso promedio</h5>
                   <p style={{ textAlign: 'center', marginTop: '60px' }}>Últimos {x} Días</p>
                 </Container>
@@ -397,7 +397,7 @@ export default function DashboardPage(props) {
             <Grid item xs={6} md={3} lg={3}>
               <Paper className={fixedHeightPaper}>
                 <Container>
-                  <h4 style={{ textAlign: 'center', marginTop: '40px' }}>{avgW}</h4>
+                  <h4 style={{ textAlign: 'center', marginTop: '40px' }}>{avgW.toFixed(0)}</h4>
                   <h5 style={{ textAlign: 'center' }}>Peso promedio</h5>
                   <p style={{ textAlign: 'center', marginTop: '60px' }}>Últimos {x} Días</p>
                 </Container>
