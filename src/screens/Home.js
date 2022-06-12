@@ -168,6 +168,7 @@ export default function DashboardPage(props) {
   const [initialized, setInitialized] = React.useState(false);
   
   const [patients, setPatients] = React.useState([])
+  const [allPatients, setAllPatients] = React.useState([])
   const [disabled, setDisabled] = React.useState(false);
   const navigate = useNavigate();
   const logout = () => {
@@ -194,15 +195,17 @@ export default function DashboardPage(props) {
 		});
     const querySnapshot2 = await getDocs(collection(db, "Paciente"));
     let pat = []
+    let a = []
     querySnapshot2.forEach((doc) => {
       // doc.data() is never undefined for query doc snapshots
       //console.log(doc.id, " => ", doc.data());
       if(m.pacientes.filter(function(item) { return item == doc.data().id; }).length > 0){
         pat.push(doc.data())
       }
+      a.push(doc.data())
     });
-    console.log(pat)
     setPatients(pat)
+    setAllPatients(a)
     sessionStorage.patients = JSON.stringify(patients)
 	}, [])
 
@@ -572,10 +575,11 @@ export default function DashboardPage(props) {
 
   async function addPatient(id) {
     const ref = doc(db, "Doctor", auth.currentUser.email);
-				
+    setMe({...me, patients: [...me.patients, id]})
 		await updateDoc(ref, {
 			pacientes: arrayUnion(id)
 		});
+
     
   }
 
@@ -771,7 +775,7 @@ export default function DashboardPage(props) {
             <Paper style={{width: '100%', height: '100%'}}>
               <h4 style={{padding: '1em'}}>Añadir Paciente</h4>
               <p style={{padding: '2em'}}>Solicitudes: </p>
-              {patients.map((row, index) =>{ 
+              {allPatients.map((row, index) =>{ 
                 return row.doctor == auth.currentUser.email && me.pacientes.filter(function(item) { return item == row.id; }).length == 0 ?
                 (  
                     <Paper style={{margin: '1em'}}>

@@ -101,7 +101,7 @@ const FormularioDiario = () => {
 
 					return errores;
 				}}
-				onSubmit={(valores, { resetForm }) => {
+				onSubmit={async (valores, { resetForm }) => {
 					resetForm();
 					console.log("Formulario enviado");
 					const ref = doc(db, "Paciente", auth.currentUser.email);
