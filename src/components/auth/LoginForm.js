@@ -64,6 +64,8 @@ const LoginForm = (props) => {
                     if(userType === "Doctor") {
                         setDoc(doc(db, "Doctor", email), {
                             id: email,
+                            name: name + ' ' + paternalSurname + ' ' + maternalSurname,
+                            email: email,
                             pacientes: [],
                             type: userType
                         }).then(r => {
@@ -74,6 +76,11 @@ const LoginForm = (props) => {
                     } else {
                         setDoc(doc(db, "Paciente", email), {
                             id: email,
+                            name: name + ' ' + paternalSurname + ' ' + maternalSurname,
+                            email: email,
+                            bpm: [],
+                            ws: [],
+                            doctor: '',
                             type: userType
                         }).then(r => {
                             // TODO: Redirect
