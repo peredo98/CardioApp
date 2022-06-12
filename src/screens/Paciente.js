@@ -17,6 +17,9 @@ import Paper from "@material-ui/core/Paper";
 import Link from "@material-ui/core/Link";
 import MenuIcon from "@material-ui/icons/Menu";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import TodayIcon from "@material-ui/icons/Today";
+import DateRangeIcon from "@material-ui/icons/DateRange";
+import EventIcon from "@material-ui/icons/Event";
 import NotificationsIcon from "@material-ui/icons/Notifications";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
@@ -132,7 +135,7 @@ const FormularioDiario = () => {
 				}}
 			>
 				{({ errors }) => (
-					<Form className="formulario">
+					<Form className="formulario" style={{ width: "100%" }}>
 						<div>
 							<label htmlFor="sistolica">Presión sistólica</label>
 							<Field
@@ -204,7 +207,7 @@ const FormularioDiario = () => {
 								placeholder="Comentarios para el doctor"
 							/>
 						</div>
-						<button type="submit">Enviar</button>
+						<button style={{ backgroundColor: "#ac005c" }} type="submit">Enviar</button>
 						{formularioEnviado && (
 							<p className="exito">Formulario enviado con éxito!</p>
 						)}
@@ -254,7 +257,7 @@ const FormularioSemanal = () => {
 				}}
 			>
 				{({ errors }) => (
-					<Form className="formulario">
+					<Form style={{ width: "100%", height: "100vh" }} className="formulario">
 						<div>
 							<label htmlFor="diametroAbdominal">Diametro abdominal</label>
 							<Field
@@ -285,7 +288,7 @@ const FormularioSemanal = () => {
 							/>
 						</div>
 
-						<button type="submit">Enviar</button>
+						<button style={{ backgroundColor: "#ac005c" }} type="submit">Enviar</button>
 						{formularioEnviado && (
 							<p className="exito">Formulario enviado con éxito!</p>
 						)}
@@ -351,7 +354,7 @@ const FormularioMensual = () => {
 				}}
 			>
 				{({ errors }) => (
-					<Form className="formulario">
+					<Form className="formulario" style={{ width: "100%" }}>
 						<div>
 							<label htmlFor="glucosa">Glucosa</label>
 							<Field
@@ -417,7 +420,7 @@ const FormularioMensual = () => {
 							/>
 						</div>
 
-						<button type="submit">Enviar</button>
+						<button style={{ backgroundColor: "#ac005c" }} type="submit">Enviar</button>
 						{formularioEnviado && (
 							<p className="exito">Formulario enviado con éxito!</p>
 						)}
@@ -643,9 +646,9 @@ async function addPatient() {
             }}
           >
             <ListItemIcon>
-              <DashboardIcon />
+              <TodayIcon />
             </ListItemIcon>
-            <ListItemText primary="Dashboard" />
+            <ListItemText primary="Diario" />
           </ListItem>
           <ListItem
             button
@@ -657,9 +660,9 @@ async function addPatient() {
             }}
           >
             <ListItemIcon>
-              <DashboardIcon />
+              <DateRangeIcon />
             </ListItemIcon>
-            <ListItemText primary="Dashboard" />
+            <ListItemText primary="Semanal" />
           </ListItem>
           <ListItem
             button
@@ -671,14 +674,14 @@ async function addPatient() {
             }}
           >
             <ListItemIcon>
-              <DashboardIcon />
+              <CalendarToday />
             </ListItemIcon>
-            <ListItemText primary="Dashboard" />
+            <ListItemText primary="Mensual" />
           </ListItem>
           <ListItem
             button
             onClick={() => {
-              setFormularioDiario(true);
+              setFormularioDiario(false);
               setFormularioSemanal(false);
               setFormularioMensual(false);
               setSettings(true);
