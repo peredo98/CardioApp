@@ -109,3 +109,7 @@ body {
 .formulario input[type="radio"] {
 	width: auto;
 } 
+
+td{
+	cursor: pointer;
+}

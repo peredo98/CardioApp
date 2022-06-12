@@ -272,12 +272,16 @@ export default function DashboardPage(props) {
     d.setDate(d.getDate() - x);
     var avgSys = 0
     var avgDia = 0
+    var avgBPM = 0
+    var avgW = 0
     for (var z = 0; z < foundPatient.bpm.length; z++) {
       var tempDate = new Date(foundPatient.bpm[z]._created_at)
       if (tempDate >= d) {
         arrayBP.push(foundPatient.bpm[z])
         avgSys += parseInt(foundPatient.bpm[z].systolic)
         avgDia += parseInt(foundPatient.bpm[z].diastolic)
+        avgBPM += parseInt(foundPatient.bpm[z].pulse)
+        avgW += parseInt(foundPatient.ws[z].weight)
       }
     }
     for (var z = 0; z < foundPatient.ws.length; z++) {
@@ -290,6 +294,8 @@ export default function DashboardPage(props) {
     if (arrayBP.length > 0) {
       avgSys = avgSys / arrayBP.length
       avgDia = avgDia / arrayBP.length
+      avgBPM = avgBPM / arrayBP.length
+      avgW = avgW / arrayWS.length
       var highSys = parseInt(arrayBP[0].systolic)
       var highDia = parseInt(arrayBP[0].diastolic)
       var lowSys = parseInt(arrayBP[0].systolic)
@@ -364,14 +370,14 @@ export default function DashboardPage(props) {
             disableUnderline
           >
             <MenuItem style={{ backgroundColor: 'white' }}>Correo: {foundPatient.email}</MenuItem>
-          </Select><Button onClick={() => setModalShow2(true)}>Editar</Button></h2>
+          </Select></h2>
           <Grid container spacing={3}>
 
             <Grid item xs={6} md={3} lg={3}>
               <Paper className={fixedHeightPaper}>
                 {/* <Chart /> */}
                 <Container>
-                  <h4 style={{ textAlign: 'center', marginTop: '40px' }}>{avgSys}/{avgDia}</h4>
+                  <h4 style={{ textAlign: 'center', marginTop: '40px' }}>{avgSys.toFixed(0)}/{avgDia.toFixed(0)}</h4>
                   <h5 style={{ textAlign: 'center' }}>Presión promedio</h5>
                   <p style={{ textAlign: 'center', marginTop: '60px' }}>Últimos {x} Días</p>
                 </Container>
@@ -381,8 +387,8 @@ export default function DashboardPage(props) {
             <Grid item xs={6} md={3} lg={3}>
               <Paper className={fixedHeightPaper}>
                 <Container>
-                  <h4 style={{ textAlign: 'center', marginTop: '40px' }}>{highSys}/{highDia}</h4>
-                  <h5 style={{ textAlign: 'center' }}>Presión máxima</h5>
+                  <h4 style={{ textAlign: 'center', marginTop: '40px' }}>{avgBPM}</h4>
+                  <h5 style={{ textAlign: 'center' }}>Pulso promedio</h5>
                   <p style={{ textAlign: 'center', marginTop: '60px' }}>Últimos {x} Días</p>
                 </Container>
               </Paper>
@@ -391,8 +397,8 @@ export default function DashboardPage(props) {
             <Grid item xs={6} md={3} lg={3}>
               <Paper className={fixedHeightPaper}>
                 <Container>
-                  <h4 style={{ textAlign: 'center', marginTop: '40px' }}>{lowSys}/{lowDia}</h4>
-                  <h5 style={{ textAlign: 'center' }}>Presión mínima</h5>
+                  <h4 style={{ textAlign: 'center', marginTop: '40px' }}>{avgW}</h4>
+                  <h5 style={{ textAlign: 'center' }}>Peso promedio</h5>
                   <p style={{ textAlign: 'center', marginTop: '60px' }}>Últimos {x} Días</p>
                 </Container>
               </Paper>
@@ -414,11 +420,11 @@ export default function DashboardPage(props) {
             Días {x === 7 ? <Button style={{ backgroundColor: '#F0F0F0' }} onClick={() => setDays(7)}>7</Button>
               : <Button onClick={() => setDays(7)}>7</Button>
             }
-            {x === 30 ? <Button style={{ backgroundColor: '#F0F0F0' }} onClick={() => setDays(30)}>30</Button>
-              : <Button onClick={() => setDays(30)}>30</Button>
+            {x === 15 ? <Button style={{ backgroundColor: '#F0F0F0' }} onClick={() => setDays(30)}>15</Button>
+              : <Button onClick={() => setDays(15)}>15</Button>
             }
-            {x === 60 ? <Button style={{ backgroundColor: '#F0F0F0' }} onClick={() => setDays(60)}>60</Button>
-              : <Button onClick={() => setDays(60)}>60</Button>
+            {x === 30 ? <Button style={{ backgroundColor: '#F0F0F0' }} onClick={() => setDays(60)}>30</Button>
+              : <Button onClick={() => setDays(30)}>30</Button>
             }
           </div>
           <div style={{ float: 'left', marginTop: '5px' }}>
@@ -575,7 +581,8 @@ export default function DashboardPage(props) {
 
   async function addPatient(id) {
     const ref = doc(db, "Doctor", auth.currentUser.email);
-    setMe({...me, patients: [...me.patients, id]})
+    console.log(me)
+    setMe({...me, patients: [...me.pacientes, id]})
 		await updateDoc(ref, {
 			pacientes: arrayUnion(id)
 		});
@@ -722,54 +729,6 @@ export default function DashboardPage(props) {
       {patientDashboard ? returnPatient(days) : console.log('Error')}
       {settings ? <main className={classes.content} >
         <div className={classes.appBarSpacer} />
-        <Container maxWidth="lg" className={classes.container}>
-          <Grid container spacing={3}>
-            <Paper style={{width: '100%', height: '100%'}}>
-              <h4 style={{padding: '1em'}}>Cambiar contraseña</h4>
-              <form className={classes.form} noValidate onSubmit={e => { e.preventDefault(); }}>
-                <TextField
-                  variant="outlined"
-                  margin="normal"
-                  required
-                  fullWidth
-                  id="email"
-                  label="Nueva contraseña"
-                  type="Password"
-                  name="email"
-                  autoFocus
-                  onChange={(event) => setPassword1(event.target.value)}
-                  style={{marginLeft: '1em', width: '90%'}}
-                />
-                <TextField
-                  variant="outlined"
-                  margin="normal"
-                  required
-                  fullWidth
-                  name="password"
-                  label="Confirmar nueva contraseña"
-                  type="password"
-                  id="password"
-                  autoComplete="current-password"
-                  onChange={(event) => setPassword2(event.target.value)}
-                  style={{marginLeft: '1em', width: '90%'}}
-                />
-
-                <Button
-                  variant="contained"
-                  color="primary"
-                  type="submit"
-                  className={classes.submit}
-                  onClick={resetPassword}
-                  style={buttonStyle}
-                >
-                  Reiniciar Contraseña
-          </Button>
-                <p>{serverMessage}</p>
-              </form>
-            </Paper>
-          </Grid>
-
-        </Container>
         <Container maxWidth="lg" className={classes.container}>
           <Grid container spacing={3}>
             <Paper style={{width: '100%', height: '100%'}}>

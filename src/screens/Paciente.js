@@ -638,34 +638,6 @@ async function addPatient() {
             button
             onClick={() => {
               setFormularioDiario(false);
-              setFormularioSemanal(true);
-              setFormularioMensual(false);
-              setSettings(false);
-            }}
-          >
-            <ListItemIcon>
-              <DateRangeIcon />
-            </ListItemIcon>
-            <ListItemText primary="Semanal" />
-          </ListItem>
-          <ListItem
-            button
-            onClick={() => {
-              setFormularioDiario(false);
-              setFormularioSemanal(false);
-              setFormularioMensual(true);
-              setSettings(false);
-            }}
-          >
-            <ListItemIcon>
-              <CalendarToday />
-            </ListItemIcon>
-            <ListItemText primary="Mensual" />
-          </ListItem>
-          <ListItem
-            button
-            onClick={() => {
-              setFormularioDiario(false);
               setFormularioSemanal(false);
               setFormularioMensual(false);
               setSettings(true);
@@ -696,59 +668,6 @@ async function addPatient() {
       {settings ? (
         <main className={classes.content}>
           <div className={classes.appBarSpacer} />
-          <Container maxWidth="lg" className={classes.container}>
-            <Grid container spacing={3}>
-              <Paper style={{ width: "100%", height: "100%" }}>
-                <h4 style={{ padding: "1em" }}>Cambiar contraseña</h4>
-                <form
-                  className={classes.form}
-                  noValidate
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                  }}
-                >
-                  <TextField
-                    variant="outlined"
-                    margin="normal"
-                    required
-                    fullWidth
-                    id="email"
-                    label="Nueva contraseña"
-                    type="Password"
-                    name="email"
-                    autoFocus
-                    onChange={(event) => setPassword1(event.target.value)}
-                    style={{ marginLeft: "1em", width: "90%" }}
-                  />
-                  <TextField
-                    variant="outlined"
-                    margin="normal"
-                    required
-                    fullWidth
-                    name="password"
-                    label="Confirmar nueva contraseña"
-                    type="password"
-                    id="password"
-                    autoComplete="current-password"
-                    onChange={(event) => setPassword2(event.target.value)}
-                    style={{ marginLeft: "1em", width: "90%" }}
-                  />
-
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    type="submit"
-                    className={classes.submit}
-                    onClick={resetPassword}
-                    style={buttonStyle}
-                  >
-                    Reiniciar Contraseña
-                  </Button>
-                  <p>{serverMessage}</p>
-                </form>
-              </Paper>
-            </Grid>
-          </Container>
           <Container maxWidth="lg" className={classes.container}>
             <Grid container spacing={3}>
               <Paper style={{ width: "100%", height: "100%" }}>

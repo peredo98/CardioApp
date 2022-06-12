@@ -6,7 +6,7 @@ import Center from "../utils/Center";
 import { signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { auth, Providers, db} from "../../config/firebase";
-import { setDoc, doc } from "firebase/firestore";
+import { setDoc, doc, getDocs, collection } from "firebase/firestore";
 import login from "../../screens/Login";
 
 const LoginForm = (props) => {
@@ -37,9 +37,22 @@ const LoginForm = (props) => {
 
     const signInWithEmailAndPwd = () => {
         signInWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
+            .then(async (userCredential) => {
                 setDisabled(true);
                 const user = userCredential.user;
+                const querySnapshot = await getDocs(collection(db, "Doctor"));
+                querySnapshot.forEach((doc) => {
+                    // doc.data() is never undefined for query doc snapshots
+                    if(doc.data().id == email){
+                        navigate("../", {replace: true}); 
+                    }
+                });
+                const querySnapshot2 = await getDocs(collection(db, "Paciente"));
+                querySnapshot2.forEach((doc) => {
+                    if(doc.data().id == email){
+                        navigate("../paciente", {replace: true});
+                    }
+                });
                 console.log(user);
             })
             .catch((error) => {
@@ -80,6 +93,8 @@ const LoginForm = (props) => {
                             email: email,
                             bpm: [],
                             ws: [],
+                            da: [],
+                            gluc: [],
                             doctor: '',
                             type: userType
                         }).then(r => {
@@ -136,13 +151,6 @@ const LoginForm = (props) => {
                                 sx={{ marginBottom: 1, width: "100%" }}
                             >
                                 Conectate
-                            </Button>
-                            <Button
-                                disabled={disabled}
-                                variant="contained"
-                                onClick={signInWithGoogle}
-                            >
-                                <GoogleIcon /> Conectate con Google
                             </Button>
                             <Typography sx={{ mt: 2 }} color={"red"}>
                                 {errorMessage}

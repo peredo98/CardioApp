@@ -74,8 +74,8 @@ export default function Chart(props) {
           </YAxis>
           <Tooltip />
           <Legend iconType="rect" />
-          <Line type="monotone" dataKey="Sistolica" stroke="#3F51B5"  dot={{ stroke: '#3F51B5', strokeWidth: 2, fill: '#3F51B5' }} label={<CustomizedLabel />} />
-          <Line type="monotone" dataKey="Diastolica" stroke="#82ca9d"  dot={{ stroke: '#82ca9d', strokeWidth: 2, fill: '#82ca9d' }} label={<CustomizedLabel />} />
+          <Line type="monotone" dataKey="Sistolica" stroke="none"  dot={{ stroke: '#3F51B5', strokeWidth: 2, fill: '#3F51B5' }} label={<CustomizedLabel />} />
+          <Line type="monotone" dataKey="Diastolica" stroke="none"  dot={{ stroke: '#82ca9d', strokeWidth: 2, fill: '#82ca9d' }} label={<CustomizedLabel />} />
         </LineChart>
       </ResponsiveContainer>
     </React.Fragment>

@@ -71,7 +71,7 @@ export default function Chart2(props) {
           </YAxis>
           <Tooltip />
           <Legend iconType="rect" />
-          <Line type="monotone" dataKey="Pulso" stroke="#3F51B5"  dot={{ stroke: '#3F51B5', strokeWidth: 2, fill: '#3F51B5' }} label={<CustomizedLabel />} />
+          <Line type="monotone" dataKey="Pulso" stroke="none"  dot={{ stroke: '#3F51B5', strokeWidth: 2, fill: '#3F51B5' }} label={<CustomizedLabel />} />
         </LineChart>
       </ResponsiveContainer>
     </React.Fragment>
