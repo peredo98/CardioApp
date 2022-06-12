@@ -50,6 +50,9 @@ import {
 	ref,
 } from "firebase/database";
 import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { auth, Providers, db} from "../config/firebase";
+import { collection, query, where, getDocs, updateDoc, doc, arrayUnion} from "firebase/firestore";
+import { BedroomParent } from '@mui/icons-material';
 
 
 const FormularioDiario = () => {
@@ -106,9 +109,34 @@ const FormularioDiario = () => {
 					return errores;
 				}}
 
-				onSubmit={(valores, { resetForm }) => {
+				onSubmit={async (valores, { resetForm }) => {
 					resetForm();
 					console.log('Formulario enviado');
+					console.log(auth.currentUser.email)
+
+					const ref = doc(db, "Paciente", auth.currentUser.email);
+					let bpm = {
+						_id: Date.now(),
+						systolic: valores.sistolica,
+						diastolic: valores.distolica,
+						pulse: valores.pulso,
+						_created_at: new Date().toISOString(),
+						_updated_at: new Date().toISOString(),
+					}
+					let ws = {
+						_id: Date.now(),						
+						weight: valores.peso,
+						_created_at: new Date().toISOString(),
+						_updated_at: new Date().toISOString(),
+					}
+
+					console.log(bpm)
+					console.log(ws)
+					await updateDoc(ref, {
+						bpm: arrayUnion(bpm),
+						ws: arrayUnion(ws)
+					});
+					
 					cambiarFormularioEnviado(true);
 					setTimeout(() => cambiarFormularioEnviado(false), 5000);
 				}}
@@ -514,6 +542,8 @@ const drawerWidth = 240;
 
 const Dashboard = (props) => {
 
+	const [doctors, setDoctors] = useState([])
+	const [doctor, setDoctor] = useState('')
 	const [formularioDiario, setFormularioDiario] = useState(true);
 	const [settings, setSettings] = useState(false);
 	const [formularioMensual, setFormularioMensual] = useState(false);
@@ -535,13 +565,36 @@ const Dashboard = (props) => {
 	const classes = useStyles();
 	const [open, setOpen] = useState(false);
 
-	function addPatient() {
-		var inputValue = {
-			patientFirstName: patientFirstName,
-			patientLastName: patientLastName,
-			patientEmail: patientEmail,
-		}
+	useEffect(async () => {
+		const querySnapshot = await getDocs(collection(db, "Doctor"));
+		let doct = []
+		querySnapshot.forEach((doc) => {
+		  // doc.data() is never undefined for query doc snapshots
+		  console.log(doc.id, " => ", doc.data());
+		  doct.push(doc.data())
+		});
+		console.log(doct)
+		setDoctors(doct)
+	  }, [])
 
+	  useEffect(async () => {
+		const querySnapshot = await getDocs(collection(db, "Paciente"));
+		querySnapshot.forEach((doc) => {
+		  // doc.data() is never undefined for query doc snapshots
+		  if(doc.data().id == auth.currentUser.email){
+			if(doc.data().doctor != ''){
+				setDoctor(doc.data().doctor)
+			}
+		  }
+		});
+	  })
+
+	async function addPatient() {
+		const ref = doc(db, "Paciente", auth.currentUser.email);
+				
+		await updateDoc(ref, {
+			doctor: doctor
+		});
 	}
 
 	const buttonStyle = {
@@ -720,16 +773,26 @@ const Dashboard = (props) => {
 				<Container maxWidth="lg" className={classes.container}>
 					<Grid container spacing={3}>
 						<Paper style={{ width: '100%', height: '100%' }}>
-							<h4 style={{ padding: '1em' }}>Añadir Paciente</h4>
+							{doctor != '' ? 
+								<h4 style={{ padding: '1em' }}>Doctor actual: {doctors.filter(function(item) { return item.id == doctor; })[0].name}</h4>: null
+							}
+							<h4 style={{ padding: '1em' }}>{doctor != '' ? 'Cambiar' :"Añadir"} Doctor</h4>
 							<form>
 								<FormControl className={classes.formControl} style={{ marginLeft: '1em' }}>
-									<InputLabel id="demo-simple-select-label" style={{ width: '200%' }}>Nombre de paciente</InputLabel>
+									<InputLabel id="demo-simple-select-label" style={{ width: '200%' }}>Nombre del doctor</InputLabel>
 									<Select
 										labelId="demo-simple-select-label"
 										id="demo-simple-select"
 										style={{ width: '200%' }}
-										onChange={(event) => { }}
+										onChange={async (event) => {
+											setDoctor(event.target.value)
+											
+										}}
 									>
+										{doctors.map((row, index) =>(
+												<MenuItem value={row.id}>{row.name}</MenuItem>
+											))
+										}
 									</Select>
 								</FormControl>
 								<p>{serverMessage2}</p>

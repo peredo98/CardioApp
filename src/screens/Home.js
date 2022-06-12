@@ -43,12 +43,10 @@ import moment from 'moment-timezone';
 import 'moment/locale/fr';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import {
-  child,
-  get,
-  getDatabase,
-  ref,
-} from "firebase/database";
+import { auth, Providers, db} from "../config/firebase";
+import { signOut } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
+import { arrayUnion, collection, doc, getDocs, updateDoc } from "firebase/firestore";
 
 const $ = require('jquery')
 $.DataTable = require('datatables.net')
@@ -141,6 +139,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function DashboardPage(props) {
 
+  const [me, setMe] = React.useState([]);
   const [mainDashboard, setMainDashboard] = React.useState(true);
   const [settings, setSettings] = React.useState(false);
   const [patientDashboard, setPatientDashboard] = React.useState(false);
@@ -167,58 +166,46 @@ export default function DashboardPage(props) {
   const [el3, setEl3] = React.useState('');
   const [el4, setEl4] = React.useState('');
   const [initialized, setInitialized] = React.useState(false);
-  var _patients = [
-    {id:"5ee420c72a399c0017c0cfde",
-    name:"Juan Perez",
-    email:"juanperes@gmail.com",
-    ws: [{
-      _id:"AOX68ijV8K",
-      weight: 75,
-      _created_at:"2022-05-05T06:19:05.532Z",
-      _updated_at:"2022-05-05T06:19:05.532Z"
-    },
-    {
-      _id:"MElJCHz8m8",
-      weight: 80,
-      _created_at:"2022-05-06T06:19:05.532Z",
-      _updated_at:"2022-05-06T06:19:05.532Z"
-    }],
-  bpm:[{_id:"AOX68ijV8K",
-  ts:1648793945481,
-  systolic:132,
-  diastolic:91,
-  pulse:59,
-  _created_at:"2022-05-03T06:19:05.532Z",
-  _updated_at:"2022-05-03T06:19:05.532Z"},
-  {_id:"MElJCHz8m8",
-  systolic:113,
-  diastolic:76,
-  pulse:101,
-  unit:0,
-  _created_at:"2022-05-04T02:53:58.894Z",
-  _updated_at:"2022-05-04T02:53:58.894Z"},
-  {_id:"bDmDGlkdBa"
-  ,systolic:127,diastolic:77,pulse:68,unit:0,_created_at:"2022-05-05T07:06:10.427Z",_updated_at:"2022-05-05T07:06:10.427Z"},
-  {_id:"jwu0Y6VpV6", systolic:131,diastolic:89,pulse:75,unit:0,_created_at:"2022-05-06T07:04:52.072Z",_updated_at:"2022-05-06T07:04:52.072Z"}
-  ]}]
+  
   const [patients, setPatients] = React.useState([])
-
-  useEffect(() => {
-
-    sessionStorage.patients = JSON.stringify(patients)
-  }, [patients])
-/*
-  useEffect(() => {
-    const onValueChange = database()
-      .ref(`/users/${userId}`)
-      .on('value', snapshot => {
-        console.log('User data: ', snapshot.val());
+  const [disabled, setDisabled] = React.useState(false);
+  const navigate = useNavigate();
+  const logout = () => {
+    setDisabled(true);
+    signOut(auth)
+      .then(() => {
+        navigate('/login');
+      })
+      .catch((error) => {
+        console.error(error);
+        setDisabled(false);
       });
+  };
 
-    // Stop listening for updates when no longer required
-    return () => database().ref(`/users/${userId}`).off('value', onValueChange);
-  }, [userId]);
-*/
+  useEffect(async () => {
+		const querySnapshot = await getDocs(collection(db, "Doctor"));
+    let m;
+		querySnapshot.forEach((doc) => {
+		  // doc.data() is never undefined for query doc snapshots
+		  if(doc.data().id == auth.currentUser.email){
+        m = doc.data()
+        setMe(m)
+		  }
+		});
+    const querySnapshot2 = await getDocs(collection(db, "Paciente"));
+    let pat = []
+    querySnapshot2.forEach((doc) => {
+      // doc.data() is never undefined for query doc snapshots
+      //console.log(doc.id, " => ", doc.data());
+      if(m.pacientes.filter(function(item) { return item == doc.data().id; }).length > 0){
+        pat.push(doc.data())
+      }
+    });
+    console.log(pat)
+    setPatients(pat)
+    sessionStorage.patients = JSON.stringify(patients)
+	}, [])
+
   function password_check(pass) {
     var regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (regex.exec(pass) == null) {
@@ -245,8 +232,9 @@ export default function DashboardPage(props) {
 
 
   function navigatePatient(name) {
+    console.log(name)
     var foundPatient
-    var patientss = JSON.parse(sessionStorage.patients)
+    var patientss = patients
     for (var j = 0; j < patientss.length; j++) {
       if (patientss[j].name === name) {
         foundPatient = patientss[j]
@@ -541,48 +529,53 @@ export default function DashboardPage(props) {
     )
   }
 
-  var tableDataArray = []
+ 
+  useEffect(() => {
+    var tableDataArray = []
+    patients.forEach(function (singleData, index) {
+      if (singleData.bpm.length === 0) {
+        var systolic = ''
+        var diastolic = ''
+        var bpDate = ''
+        var pulse = ''
+      } else {
+        var systolic = Math.round(parseInt(singleData.bpm[0].systolic))
+        var diastolic = Math.round(parseInt(singleData.bpm[0].diastolic))
+        var bpDate = moment(singleData.bpm[0]._created_at).format('MM/DD/YY h:mm A')
+        var pulse = singleData.bpm[0].pulse
+      }
+      if (singleData.ws.length === 0) {
+        var weight = ''
+        var wsDate = ''
+      } else {
+        var weight = (parseFloat(singleData.ws[0].weight)).toFixed(2);
+        var wsDate = moment(singleData.ws[0]._created_at).format('MM/DD/YY h:mm A');
+      }
+      var name = singleData.name
+      var tableRow = {
+        name: name,
+        bptaken: bpDate,
+        bp: systolic + '/' + diastolic,
+        pulse: pulse,
+        weighttaken: wsDate,
+        weight: weight,
+      }
+      tableDataArray.push(tableRow)
+    })
+    rows=tableDataArray
+    setTableData(tableDataArray)
+  }, [patients])
+  
 
-  patients.forEach(function (singleData, index) {
-    if (singleData.bpm.length === 0) {
-      var systolic = ''
-      var diastolic = ''
-      var bpDate = ''
-      var pulse = ''
-    } else {
-      var systolic = Math.round(parseInt(singleData.bpm[0].systolic))
-      var diastolic = Math.round(parseInt(singleData.bpm[0].diastolic))
-      var bpDate = moment(singleData.bpm[0]._created_at).format('MM/DD/YY h:mm A')
-      var pulse = singleData.bpm[0].pulse
-    }
-    if (singleData.ws.length === 0) {
-      var weight = ''
-      var wsDate = ''
-    } else {
-      var weight = (parseFloat(singleData.ws[0].weight)).toFixed(2);
-      var wsDate = moment(singleData.ws[0]._created_at).format('MM/DD/YY h:mm A');
-    }
-    var name = singleData.name
-    var tableRow = {
-      name: name,
-      bptaken: bpDate,
-      bp: systolic + '/' + diastolic,
-      pulse: pulse,
-      weighttaken: wsDate,
-      weight: weight,
-    }
-    tableDataArray.push(tableRow)
-  })
-
-  var rows = tableDataArray
+  var rows = [];
   const [tableData, setTableData] = React.useState(rows);
 
-  function addPatient() {
-    var inputValue = {
-      patientFirstName: patientFirstName,
-      patientLastName: patientLastName,
-      patientEmail: patientEmail,
-    }
+  async function addPatient(id) {
+    const ref = doc(db, "Doctor", auth.currentUser.email);
+				
+		await updateDoc(ref, {
+			pacientes: arrayUnion(id)
+		});
     
   }
 
@@ -660,7 +653,7 @@ export default function DashboardPage(props) {
           </ListItem>
           <ListItem button onClick={() => {
             sessionStorage.clear();
-            props.history.push('/');
+            logout();
           }}>
             <ListItemIcon>
               <ExitToAppIcon />
@@ -777,26 +770,25 @@ export default function DashboardPage(props) {
           <Grid container spacing={3}>
             <Paper style={{width: '100%', height: '100%'}}>
               <h4 style={{padding: '1em'}}>Añadir Paciente</h4>
-              <form>
-                <FormControl className={classes.formControl} style={{marginLeft: '1em'}}>
-                  <InputLabel id="demo-simple-select-label" style={{width: '200%'}}>Nombre de paciente</InputLabel>
-                  <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    style={{width: '200%'}}
-                    onChange={(event) => {}}
-                  >
-                  </Select>
-                </FormControl>
-                <p>{serverMessage2}</p>
-              </form>
-              <Button variant="contained"
-                color="primary"
-                type="submit"
-                style={buttonStyle}
-                className={classes.submit} onClick={addPatient}>
-                Agregar
-              </Button>
+              <p style={{padding: '2em'}}>Solicitudes: </p>
+              {patients.map((row, index) =>{ 
+                return row.doctor == auth.currentUser.email && me.pacientes.filter(function(item) { return item == row.id; }).length == 0 ?
+                (  
+                    <Paper style={{margin: '1em'}}>
+                      <h5 style={{paddingInline: '1.5em', display: 'inline'}}>{row.name}</h5>
+                      <Button variant="contained"
+                        color="primary"
+                        type="submit"
+                        style={buttonStyle}
+                        className={classes.submit} onClick={() => {addPatient(row.id)}}>
+                        Agregar
+                      </Button>
+                    </Paper>
+										
+									) : null
+                }) 
+							}
+              <p style={{padding: '2em'}}>No hay más solicitudes</p>
             </Paper>
           </Grid>
         </Container>
