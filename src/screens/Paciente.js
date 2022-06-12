@@ -17,6 +17,9 @@ import Paper from "@material-ui/core/Paper";
 import Link from "@material-ui/core/Link";
 import MenuIcon from "@material-ui/icons/Menu";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import TodayIcon from "@material-ui/icons/Today";
+import DateRangeIcon from "@material-ui/icons/DateRange";
+import EventIcon from "@material-ui/icons/Event";
 import NotificationsIcon from "@material-ui/icons/Notifications";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
@@ -54,387 +57,349 @@ import html2canvas from "html2canvas";
 import { child, get, getDatabase, ref } from "firebase/database";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { auth, Providers, db } from "../config/firebase";
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  updateDoc,
-  doc,
-  arrayUnion,
-} from "firebase/firestore";
+import { collection, query, where, getDocs, updateDoc, doc, arrayUnion } from "firebase/firestore";
+import { CalendarToday } from "@material-ui/icons";
+import { signOut } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
 const FormularioDiario = () => {
-  const [formularioEnviado, cambiarFormularioEnviado] = useState(false);
-  return (
-    <>
-      <Formik
-        initialValues={{
-          sistolica: "",
-          distolica: "",
-          pulso: "",
-          peso: "",
-        }}
-        validate={(valores) => {
-          let errores = {};
+	const [formularioEnviado, cambiarFormularioEnviado] = useState(false);
+	return (
+		<>
+			<Formik
+				initialValues={{
+					sistolica: "",
+					distolica: "",
+					pulso: "",
+					peso: "",
+				}}
+				validate={(valores) => {
+					let errores = {};
 
-          // Validación sistólica
-          if (!valores.sistolica) {
-            errores.sistolica = "Por favor ingresa una presión sistólica";
-          } else if (!/^[0-9]*$/.test(valores.sistolica)) {
-            errores.sistolica =
-              "La presión sistólica solo puede contener números";
-          }
+					// Validación sistólica
+					if (!valores.sistolica) {
+						errores.sistolica = "Por favor ingresa una presión sistólica";
+					} else if (!/^[0-9]*$/.test(valores.sistolica)) {
+						errores.sistolica =
+							"La presión sistólica solo puede contener números";
+					}
 
-          // Validación sistólica
-          if (!valores.distolica) {
-            errores.distolica = "Por favor ingresa una presión diastólica";
-          } else if (!/^[0-9]*$/.test(valores.distolica)) {
-            errores.distolica =
-              "La presión diastólica solo puede contener números";
-          }
+					// Validación sistólica
+					if (!valores.distolica) {
+						errores.distolica = "Por favor ingresa una presión diastólica";
+					} else if (!/^[0-9]*$/.test(valores.distolica)) {
+						errores.distolica =
+							"La presión diastólica solo puede contener números";
+					}
 
-          // Validación pulso
-          if (!valores.pulso) {
-            errores.pulso = "Por favor ingresa un pulso";
-          } else if (!/^[0-9]*$/.test(valores.pulso)) {
-            errores.pulso = "La presión diastólica solo puede contener números";
-          }
+					// Validación pulso
+					if (!valores.pulso) {
+						errores.pulso = "Por favor ingresa un pulso";
+					} else if (!/^[0-9]*$/.test(valores.pulso)) {
+						errores.pulso = "La presión diastólica solo puede contener números";
+					}
 
-          // Validación peso
-          if (!valores.peso) {
-            errores.peso = "Por favor ingresa un peso";
-          } else if (!/^[0-9]*$/.test(valores.peso)) {
-            errores.peso = "El peso solo puede contener números";
-          }
+					// Validación peso
+					if (!valores.peso) {
+						errores.peso = "Por favor ingresa un peso";
+					} else if (!/^[0-9]*$/.test(valores.peso)) {
+						errores.peso = "El peso solo puede contener números";
+					}
 
-          return errores;
-        }}
-        onSubmit={async (valores, { resetForm }) => {
-          resetForm();
-          console.log("Formulario enviado");
-          const ref = doc(db, "Paciente", auth.currentUser.email);
-          let bpm = {
-            _id: Date.now(),
-            systolic: valores.sistolica,
-            diastolic: valores.distolica,
-            pulse: valores.pulso,
-            _created_at: new Date().toISOString(),
-            _updated_at: new Date().toISOString(),
-          };
-          let ws = {
-            _id: Date.now(),
-            weight: valores.peso,
-            _created_at: new Date().toISOString(),
-            _updated_at: new Date().toISOString(),
-          };
+					return errores;
+				}}
+				onSubmit={async (valores, { resetForm }) => {
+					resetForm();
+					console.log("Formulario enviado");
+					const ref = doc(db, "Paciente", auth.currentUser.email);
+					let bpm = {
+						_id: Date.now(),
+						systolic: valores.sistolica,
+						diastolic: valores.distolica,
+						pulse: valores.pulso,
+						_created_at: new Date().toISOString(),
+						_updated_at: new Date().toISOString(),
+					}
+					let ws = {
+						_id: Date.now(),
+						weight: valores.peso,
+						_created_at: new Date().toISOString(),
+						_updated_at: new Date().toISOString(),
+					}
 
-          console.log(bpm);
-          console.log(ws);
-          await updateDoc(ref, {
-            bpm: arrayUnion(bpm),
-            ws: arrayUnion(ws),
-          });
-          cambiarFormularioEnviado(true);
-          setTimeout(() => cambiarFormularioEnviado(false), 5000);
-          MailService("day");
-        }}
-      >
-        {({ errors }) => (
-          <Form className="formulario">
-            <div>
-              <label htmlFor="sistolica">Presión sistólica</label>
-              <Field
-                type="text"
-                id="sistolica"
-                name="sistolica"
-                placeholder="Ej. 120"
-              />
-              <ErrorMessage
-                name="sistolica"
-                component={() => (
-                  <div className="error">{errors.sistolica}</div>
-                )}
-              />
-            </div>
+					console.log(bpm)
+					console.log(ws)
+					await updateDoc(ref, {
+						bpm: arrayUnion(bpm),
+						ws: arrayUnion(ws)
+					});
+					cambiarFormularioEnviado(true);
+					setTimeout(() => cambiarFormularioEnviado(false), 5000);
+					MailService("day");
+				}}
+			>
+				{({ errors }) => (
+					<Form style={{ width: "100%", height: "100vh" }} className="formulario">
+						<div>
+							<label htmlFor="sistolica">Presión sistólica</label>
+							<Field
+								type="text"
+								id="sistolica"
+								name="sistolica"
+								placeholder="Ej. 120"
+							/>
+							<ErrorMessage
+								name="sistolica"
+								component={() => (
+									<div className="error">{errors.sistolica}</div>
+								)}
+							/>
+						</div>
 
-            <div>
-              <label htmlFor="distolica">Presión diastólica</label>
-              <Field
-                type="text"
-                id="distolica"
-                name="distolica"
-                placeholder="Ej. 80"
-              />
-              <ErrorMessage
-                name="distolica"
-                component={() => (
-                  <div className="error">{errors.distolica}</div>
-                )}
-              />
-            </div>
+						<div>
+							<label htmlFor="distolica">Presión diastólica</label>
+							<Field
+								type="text"
+								id="distolica"
+								name="distolica"
+								placeholder="Ej. 80"
+							/>
+							<ErrorMessage
+								name="distolica"
+								component={() => (
+									<div className="error">{errors.distolica}</div>
+								)}
+							/>
+						</div>
 
-            <div>
-              <label htmlFor="pulso">Pulso</label>
-              <Field
-                type="text"
-                id="pulso"
-                name="pulso"
-                placeholder="Ej. 100"
-              />
-              <ErrorMessage
-                name="pulso"
-                component={() => <div className="error">{errors.pulso}</div>}
-              />
-            </div>
+						<div>
+							<label htmlFor="pulso">Pulso</label>
+							<Field
+								type="text"
+								id="pulso"
+								name="pulso"
+								placeholder="Ej. 100"
+							/>
+							<ErrorMessage
+								name="pulso"
+								component={() => <div className="error">{errors.pulso}</div>}
+							/>
+						</div>
 
-            <div>
-              <label htmlFor="peso">Peso</label>
-              <Field type="text" id="pulso" name="peso" placeholder="Ej. 70" />
-              <ErrorMessage
-                name="peso"
-                component={() => <div className="error">{errors.peso}</div>}
-              />
-            </div>
+						<div>
+							<label htmlFor="peso">Peso</label>
+							<Field type="text" id="pulso" name="peso" placeholder="Ej. 70" />
+							<ErrorMessage
+								name="peso"
+								component={() => <div className="error">{errors.peso}</div>}
+							/>
+						</div>
 
-            <div>
-              <label>
-                <Field type="radio" name="sexo" value="hombre" /> hombre
-              </label>
-              <label>
-                <Field type="radio" name="sexo" value="mujer" /> mujer
-              </label>
-            </div>
-
-            <div>
-              <Field
-                name="mensaje"
-                as="textarea"
-                placeholder="Comentarios para el doctor"
-              />
-            </div>
-            <button type="submit">Enviar</button>
-            {formularioEnviado && (
-              <p className="exito">Formulario enviado con éxito!</p>
-            )}
-          </Form>
-        )}
-      </Formik>
-    </>
-  );
+						<button style={{ backgroundColor: "#ac005c" }} type="submit">Enviar</button>
+						{formularioEnviado && (
+							<p className="exito">Formulario enviado con éxito!</p>
+						)}
+					</Form>
+				)}
+			</Formik>
+		</>
+	);
 };
 
 const FormularioSemanal = () => {
-  const [formularioEnviado, cambiarFormularioEnviado] = useState(false);
-  return (
-    <>
-      <Formik
-        initialValues={{
-          diametroAbdominal: "",
-          peso: "",
-        }}
-        validate={(valores) => {
-          let errores = {};
+	const [formularioEnviado, cambiarFormularioEnviado] = useState(false);
+	return (
+		<>
+			<Formik
+				initialValues={{
+					diametroAbdominal: "",
+					peso: "",
+				}}
+				validate={(valores) => {
+					let errores = {};
 
-          // Validación diametroAbdominal
-          if (!valores.diametroAbdominal) {
-            errores.diametroAbdominal =
-              "Por favor ingresa tu diámetro abdominal";
-          } else if (!/^[0-9]*$/.test(valores.diametroAbdominal)) {
-            errores.diametroAbdominal =
-              "La presión diastólica solo puede contener números";
-          }
+					// Validación diametroAbdominal
+					if (!valores.diametroAbdominal) {
+						errores.diametroAbdominal =
+							"Por favor ingresa tu diámetro abdominal";
+					} else if (!/^[0-9]*$/.test(valores.diametroAbdominal)) {
+						errores.diametroAbdominal =
+							"La presión diastólica solo puede contener números";
+					}
 
-          // Validación peso
-          if (!valores.peso) {
-            errores.peso = "Por favor ingresa un peso";
-          } else if (!/^[0-9]*$/.test(valores.peso)) {
-            errores.peso = "El peso solo puede contener números";
-          }
+					// Validación peso
+					if (!valores.peso) {
+						errores.peso = "Por favor ingresa un peso";
+					} else if (!/^[0-9]*$/.test(valores.peso)) {
+						errores.peso = "El peso solo puede contener números";
+					}
 
-          return errores;
-        }}
-        onSubmit={(valores, { resetForm }) => {
-          resetForm();
-          console.log("Formulario enviado");
-          cambiarFormularioEnviado(true);
-          setTimeout(() => cambiarFormularioEnviado(false), 5000);
-          MailService("week");
-        }}
-      >
-        {({ errors }) => (
-          <Form className="formulario">
-            <div>
-              <label htmlFor="diametroAbdominal">Diametro abdominal</label>
-              <Field
-                type="text"
-                id="diametroAbdominal"
-                name="diametroAbdominal"
-                placeholder="Ej. 100"
-              />
-              <ErrorMessage
-                name="diametroAbdominal"
-                component={() => (
-                  <div className="error">{errors.diametroAbdominal}</div>
-                )}
-              />
-            </div>
+					return errores;
+				}}
+				onSubmit={(valores, { resetForm }) => {
+					resetForm();
+					console.log("Formulario enviado");
+					cambiarFormularioEnviado(true);
+					setTimeout(() => cambiarFormularioEnviado(false), 5000);
+					MailService("week");
+				}}
+			>
+				{({ errors }) => (
+					<Form style={{ width: "100%", height: "100vh" }} className="formulario">
+						<div>
+							<label htmlFor="diametroAbdominal">Diametro abdominal</label>
+							<Field
+								type="text"
+								id="diametroAbdominal"
+								name="diametroAbdominal"
+								placeholder="Ej. 100"
+							/>
+							<ErrorMessage
+								name="diametroAbdominal"
+								component={() => (
+									<div className="error">{errors.diametroAbdominal}</div>
+								)}
+							/>
+						</div>
 
-            <div>
-              <label htmlFor="peso">Peso</label>
-              <Field
-                type="text"
-                id="diametroAbdominal"
-                name="peso"
-                placeholder="Ej. 70"
-              />
-              <ErrorMessage
-                name="peso"
-                component={() => <div className="error">{errors.peso}</div>}
-              />
-            </div>
+						<div>
+							<label htmlFor="peso">Peso</label>
+							<Field
+								type="text"
+								id="diametroAbdominal"
+								name="peso"
+								placeholder="Ej. 70"
+							/>
+							<ErrorMessage
+								name="peso"
+								component={() => <div className="error">{errors.peso}</div>}
+							/>
+						</div>
 
-            <button type="submit">Enviar</button>
-            {formularioEnviado && (
-              <p className="exito">Formulario enviado con éxito!</p>
-            )}
-          </Form>
-        )}
-      </Formik>
-    </>
-  );
+						<button style={{ backgroundColor: "#ac005c" }} type="submit">Enviar</button>
+						{formularioEnviado && (
+							<p className="exito">Formulario enviado con éxito!</p>
+						)}
+					</Form>
+				)}
+			</Formik>
+		</>
+	);
 };
 
 const FormularioMensual = () => {
-  const [formularioEnviado, cambiarFormularioEnviado] = useState(false);
-  return (
-    <>
-      <Formik
-        initialValues={{
-          glucosa: "",
-          trigliceridos: "",
-          LDL: "",
-          HDL: "",
-        }}
-        validate={(valores) => {
-          let errores = {};
+	const [formularioEnviado, cambiarFormularioEnviado] = useState(false);
+	return (
+		<>
+			<Formik
+				initialValues={{
+					glucosa: "",
+					trigliceridos: "",
+					LDL: "",
+					HDL: "",
+				}}
+				validate={(valores) => {
+					let errores = {};
 
-          // Validación sistólica
-          if (!valores.glucosa) {
-            errores.glucosa = "Por favor ingresa tu glucosa";
-          } else if (!/^[0-9]*$/.test(valores.glucosa)) {
-            errores.glucosa =
-              "La presión sistólica solo puede contener números";
-          }
+					// Validación sistólica
+					if (!valores.glucosa) {
+						errores.glucosa = "Por favor ingresa tu glucosa";
+					} else if (!/^[0-9]*$/.test(valores.glucosa)) {
+						errores.glucosa =
+							"La presión sistólica solo puede contener números";
+					}
 
-          // Validación sistólica
-          if (!valores.trigliceridos) {
-            errores.trigliceridos = "Por favor ingresa tus triglicéridos";
-          } else if (!/^[0-9]*$/.test(valores.trigliceridos)) {
-            errores.trigliceridos =
-              "La presión diastólica solo puede contener números";
-          }
+					// Validación sistólica
+					if (!valores.trigliceridos) {
+						errores.trigliceridos = "Por favor ingresa tus triglicéridos";
+					} else if (!/^[0-9]*$/.test(valores.trigliceridos)) {
+						errores.trigliceridos =
+							"La presión diastólica solo puede contener números";
+					}
 
-          // Validación LDL
-          if (!valores.LDL) {
-            errores.LDL = "Por favor ingresa un LDL";
-          } else if (!/^[0-9]*$/.test(valores.LDL)) {
-            errores.LDL = "La presión diastólica solo puede SADDDDDDDDDDDDDDDD";
-          }
+					// Validación LDL
+					if (!valores.LDL) {
+						errores.LDL = "Por favor ingresa un LDL";
+					} else if (!/^[0-9]*$/.test(valores.LDL)) {
+						errores.LDL = "La presión diastólica solo puede SADDDDDDDDDDDDDDDD";
+					}
 
-          // Validación HDL
-          if (!valores.HDL) {
-            errores.HDL = "Por favor ingresa un HDL";
-          } else if (!/^[0-9]*$/.test(valores.HDL)) {
-            errores.HDL = "El HDL solo puede contener números";
-          }
+					// Validación HDL
+					if (!valores.HDL) {
+						errores.HDL = "Por favor ingresa un HDL";
+					} else if (!/^[0-9]*$/.test(valores.HDL)) {
+						errores.HDL = "El HDL solo puede contener números";
+					}
 
-          return errores;
-        }}
-        onSubmit={(valores, { resetForm }) => {
-          resetForm();
-          console.log("Formulario enviado");
-          cambiarFormularioEnviado(true);
-          setTimeout(() => cambiarFormularioEnviado(false), 5000);
-          MailService("month");
-        }}
-      >
-        {({ errors }) => (
-          <Form className="formulario">
-            <div>
-              <label htmlFor="glucosa">Glucosa</label>
-              <Field
-                type="text"
-                id="glucosa"
-                name="glucosa"
-                placeholder="Ej. 120"
-              />
-              <ErrorMessage
-                name="glucosa"
-                component={() => <div className="error">{errors.glucosa}</div>}
-              />
-            </div>
+					return errores;
+				}}
+				onSubmit={(valores, { resetForm }) => {
+					resetForm();
+					console.log("Formulario enviado");
+					cambiarFormularioEnviado(true);
+					setTimeout(() => cambiarFormularioEnviado(false), 5000);
+					MailService("month");
+				}}
+			>
+				{({ errors }) => (
+					<Form style={{ width: "100%", height: "100vh" }} className="formulario">
+						<div>
+							<label htmlFor="glucosa">Glucosa</label>
+							<Field
+								type="text"
+								id="glucosa"
+								name="glucosa"
+								placeholder="Ej. 120"
+							/>
+							<ErrorMessage
+								name="glucosa"
+								component={() => <div className="error">{errors.glucosa}</div>}
+							/>
+						</div>
 
-            <div>
-              <label htmlFor="trigliceridos">Triglicéridos</label>
-              <Field
-                type="text"
-                id="trigliceridos"
-                name="trigliceridos"
-                placeholder="Ej. 80"
-              />
-              <ErrorMessage
-                name="trigliceridos"
-                component={() => (
-                  <div className="error">{errors.trigliceridos}</div>
-                )}
-              />
-            </div>
+						<div>
+							<label htmlFor="trigliceridos">Triglicéridos</label>
+							<Field
+								type="text"
+								id="trigliceridos"
+								name="trigliceridos"
+								placeholder="Ej. 80"
+							/>
+							<ErrorMessage
+								name="trigliceridos"
+								component={() => (
+									<div className="error">{errors.trigliceridos}</div>
+								)}
+							/>
+						</div>
 
-            <div>
-              <label htmlFor="LDL">LDL</label>
-              <Field type="text" id="LDL" name="LDL" placeholder="Ej. 100" />
-              <ErrorMessage
-                name="LDL"
-                component={() => <div className="error">{errors.LDL}</div>}
-              />
-            </div>
+						<div>
+							<label htmlFor="LDL">LDL</label>
+							<Field type="text" id="LDL" name="LDL" placeholder="Ej. 100" />
+							<ErrorMessage
+								name="LDL"
+								component={() => <div className="error">{errors.LDL}</div>}
+							/>
+						</div>
 
-            <div>
-              <label htmlFor="HDL">HDL</label>
-              <Field type="text" id="LDL" name="HDL" placeholder="Ej. 70" />
-              <ErrorMessage
-                name="HDL"
-                component={() => <div className="error">{errors.HDL}</div>}
-              />
-            </div>
+						<div>
+							<label htmlFor="HDL">HDL</label>
+							<Field type="text" id="LDL" name="HDL" placeholder="Ej. 70" />
+							<ErrorMessage
+								name="HDL"
+								component={() => <div className="error">{errors.HDL}</div>}
+							/>
+						</div>
 
-            <div>
-              <label>
-                <Field type="radio" name="sexo" value="hombre" /> hombre
-              </label>
-              <label>
-                <Field type="radio" name="sexo" value="mujer" /> mujer
-              </label>
-            </div>
-
-            <div>
-              <Field
-                name="mensaje"
-                as="textarea"
-                placeholder="Comentarios para el doctor"
-              />
-            </div>
-
-            <button type="submit">Enviar</button>
-            {formularioEnviado && (
-              <p className="exito">Formulario enviado con éxito!</p>
-            )}
-          </Form>
-        )}
-      </Formik>
-    </>
-  );
+						<button style={{ backgroundColor: "#ac005c" }} type="submit">Enviar</button>
+						{formularioEnviado && (
+							<p className="exito">Formulario enviado con éxito!</p>
+						)}
+					</Form>
+				)}
+			</Formik>
+		</>
+	);
 };
 
 const useStyles = makeStyles((theme) => ({
@@ -546,6 +511,20 @@ const Dashboard = (props) => {
   const [modalShow2, setModalShow2] = useState(false);
   const classes = useStyles();
   const [open, setOpen] = useState(false);
+  const [disabled, setDisabled] = useState(false);
+
+  const navigate = useNavigate();
+  const logout = () => {
+    setDisabled(true);
+    signOut(auth)
+      .then(() => {
+        navigate('/login');
+      })
+      .catch((error) => {
+        console.error(error);
+        setDisabled(false);
+      });
+  };
 
   useEffect(async () => {
     const querySnapshot = await getDocs(collection(db, "Doctor"));
@@ -655,42 +634,14 @@ const Dashboard = (props) => {
             }}
           >
             <ListItemIcon>
-              <DashboardIcon />
+              <TodayIcon />
             </ListItemIcon>
-            <ListItemText primary="Dashboard" />
+            <ListItemText primary="Diario" />
           </ListItem>
           <ListItem
             button
             onClick={() => {
               setFormularioDiario(false);
-              setFormularioSemanal(true);
-              setFormularioMensual(false);
-              setSettings(false);
-            }}
-          >
-            <ListItemIcon>
-              <DashboardIcon />
-            </ListItemIcon>
-            <ListItemText primary="Dashboard" />
-          </ListItem>
-          <ListItem
-            button
-            onClick={() => {
-              setFormularioDiario(false);
-              setFormularioSemanal(false);
-              setFormularioMensual(true);
-              setSettings(false);
-            }}
-          >
-            <ListItemIcon>
-              <DashboardIcon />
-            </ListItemIcon>
-            <ListItemText primary="Dashboard" />
-          </ListItem>
-          <ListItem
-            button
-            onClick={() => {
-              setFormularioDiario(true);
               setFormularioSemanal(false);
               setFormularioMensual(false);
               setSettings(true);
@@ -705,7 +656,7 @@ const Dashboard = (props) => {
             button
             onClick={() => {
               sessionStorage.clear();
-              props.history.push("/");
+              logout()
             }}
           >
             <ListItemIcon>
@@ -724,97 +675,28 @@ const Dashboard = (props) => {
           <Container maxWidth="lg" className={classes.container}>
             <Grid container spacing={3}>
               <Paper style={{ width: "100%", height: "100%" }}>
-                <h4 style={{ padding: "1em" }}>Cambiar contraseña</h4>
-                <form
-                  className={classes.form}
-                  noValidate
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                  }}
-                >
-                  <TextField
-                    variant="outlined"
-                    margin="normal"
-                    required
-                    fullWidth
-                    id="email"
-                    label="Nueva contraseña"
-                    type="Password"
-                    name="email"
-                    autoFocus
-                    onChange={(event) => setPassword1(event.target.value)}
-                    style={{ marginLeft: "1em", width: "90%" }}
-                  />
-                  <TextField
-                    variant="outlined"
-                    margin="normal"
-                    required
-                    fullWidth
-                    name="password"
-                    label="Confirmar nueva contraseña"
-                    type="password"
-                    id="password"
-                    autoComplete="current-password"
-                    onChange={(event) => setPassword2(event.target.value)}
-                    style={{ marginLeft: "1em", width: "90%" }}
-                  />
-
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    type="submit"
-                    className={classes.submit}
-                    onClick={resetPassword}
-                    style={buttonStyle}
-                  >
-                    Reiniciar Contraseña
-                  </Button>
-                  <p>{serverMessage}</p>
-                </form>
-              </Paper>
-            </Grid>
-          </Container>
-          <Container maxWidth="lg" className={classes.container}>
-            <Grid container spacing={3}>
-              <Paper style={{ width: "100%", height: "100%" }}>
-                {doctor != "" ? (
-                  <h4 style={{ padding: "1em" }}>
-                    Doctor actual:{" "}
-                    {
-                      doctors.filter(function (item) {
-                        return item.id == doctor;
-                      })[0].name
-                    }
-                  </h4>
-                ) : null}
-                <h4 style={{ padding: "1em" }}>
-                  {doctor != "" ? "Cambiar" : "Añadir"} Doctor
-                </h4>
-                <form>
-                  <FormControl
-                    className={classes.formControl}
-                    style={{ marginLeft: "1em" }}
-                  >
-                    <InputLabel
-                      id="demo-simple-select-label"
-                      style={{ width: "200%" }}
-                    >
-                      Nombre del doctor
-                    </InputLabel>
-                    <Select
-                      labelId="demo-simple-select-label"
-                      id="demo-simple-select"
-                      style={{ width: "200%" }}
-                      onChange={async (event) => {
-                        setDoctor(event.target.value.id);
+			  {doctor != '' ?
+								<h4 style={{ padding: '1em' }}>Doctor actual: {doctors.filter(function(item) { return item.id == doctor; })[0].name}</h4>: null
+							}
+							<h4 style={{ padding: '1em' }}>{doctor != '' ? 'Cambiar' :"Añadir"} Doctor</h4>
+							<form>
+								<FormControl className={classes.formControl} style={{ marginLeft: '1em' }}>
+									<InputLabel id="demo-simple-select-label" style={{ width: '200%' }}>Nombre del doctor</InputLabel>
+									<Select
+										labelId="demo-simple-select-label"
+										id="demo-simple-select"
+										style={{ width: '200%' }}
+										onChange={async (event) => {
+											setDoctor(event.target.value.id);
                         setDoctorName(event.target.value.name);
-                      }}
-                    >
-                      {doctors.map((row, index) => (
-                        <MenuItem value={row}>{row.name}</MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
+										}}
+									>
+										{doctors.map((row, index) =>(
+												<MenuItem value={row}>{row.name}</MenuItem>
+											))
+										}
+									</Select>
+								</FormControl>
                   <p>{serverMessage2}</p>
                 </form>
                 <Button
