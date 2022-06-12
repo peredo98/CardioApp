@@ -57,6 +57,9 @@ import { child, get, getDatabase, ref } from "firebase/database";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { auth, Providers, db } from "../config/firebase";
 import { collection, query, where, getDocs, updateDoc, doc, arrayUnion } from "firebase/firestore";
+import { CalendarToday } from "@material-ui/icons";
+import { signOut } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
 const FormularioDiario = () => {
 	const [formularioEnviado, cambiarFormularioEnviado] = useState(false);
@@ -135,7 +138,7 @@ const FormularioDiario = () => {
 				}}
 			>
 				{({ errors }) => (
-					<Form className="formulario" style={{ width: "100%" }}>
+					<Form style={{ width: "100%", height: "100vh" }} className="formulario">
 						<div>
 							<label htmlFor="sistolica">Presión sistólica</label>
 							<Field
@@ -191,22 +194,6 @@ const FormularioDiario = () => {
 							/>
 						</div>
 
-						<div>
-							<label>
-								<Field type="radio" name="sexo" value="hombre" /> hombre
-							</label>
-							<label>
-								<Field type="radio" name="sexo" value="mujer" /> mujer
-							</label>
-						</div>
-
-						<div>
-							<Field
-								name="mensaje"
-								as="textarea"
-								placeholder="Comentarios para el doctor"
-							/>
-						</div>
 						<button style={{ backgroundColor: "#ac005c" }} type="submit">Enviar</button>
 						{formularioEnviado && (
 							<p className="exito">Formulario enviado con éxito!</p>
@@ -354,7 +341,7 @@ const FormularioMensual = () => {
 				}}
 			>
 				{({ errors }) => (
-					<Form className="formulario" style={{ width: "100%" }}>
+					<Form style={{ width: "100%", height: "100vh" }} className="formulario">
 						<div>
 							<label htmlFor="glucosa">Glucosa</label>
 							<Field
@@ -400,23 +387,6 @@ const FormularioMensual = () => {
 							<ErrorMessage
 								name="HDL"
 								component={() => <div className="error">{errors.HDL}</div>}
-							/>
-						</div>
-
-						<div>
-							<label>
-								<Field type="radio" name="sexo" value="hombre" /> hombre
-							</label>
-							<label>
-								<Field type="radio" name="sexo" value="mujer" /> mujer
-							</label>
-						</div>
-
-						<div>
-							<Field
-								name="mensaje"
-								as="textarea"
-								placeholder="Comentarios para el doctor"
 							/>
 						</div>
 
@@ -539,6 +509,20 @@ const Dashboard = (props) => {
   const [modalShow2, setModalShow2] = useState(false);
   const classes = useStyles();
   const [open, setOpen] = useState(false);
+  const [disabled, setDisabled] = useState(false);
+
+  const navigate = useNavigate();
+  const logout = () => {
+    setDisabled(true);
+    signOut(auth)
+      .then(() => {
+        navigate('/login');
+      })
+      .catch((error) => {
+        console.error(error);
+        setDisabled(false);
+      });
+  };
 
   useEffect(async () => {
 	const querySnapshot = await getDocs(collection(db, "Doctor"));
@@ -696,7 +680,7 @@ async function addPatient() {
             button
             onClick={() => {
               sessionStorage.clear();
-              props.history.push("/");
+              logout()
             }}
           >
             <ListItemIcon>
