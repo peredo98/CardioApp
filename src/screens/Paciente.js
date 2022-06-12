@@ -31,11 +31,11 @@ import Chart from "../components/Chart";
 import Chart2 from "../components/Chart2";
 import Chart3 from "../components/Chart3";
 import {
-	MDBDataTable,
-	MDBBtn,
-	MDBTable,
-	MDBTableBody,
-	MDBTableHead,
+  MDBDataTable,
+  MDBBtn,
+  MDBTable,
+  MDBTableBody,
+  MDBTableHead,
 } from "mdbreact";
 import ProfileIcon from "@material-ui/icons/People";
 import EmailIcon from "@material-ui/icons/Email";
@@ -49,6 +49,7 @@ import Modal from "react-bootstrap/Modal";
 import InputLabel from "@material-ui/core/InputLabel";
 import FormControl from "@material-ui/core/FormControl";
 import MailService from "../components/notification/mailService";
+import MailServiceDoctor from "../components/notification/mailServiceDoctor";
 import moment from "moment-timezone";
 import "moment/locale/fr";
 import jsPDF from "jspdf";
@@ -402,93 +403,94 @@ const FormularioMensual = () => {
 };
 
 const useStyles = makeStyles((theme) => ({
-	root: {
-		display: "flex",
-	},
-	toolbar: {
-		paddingRight: 24, // keep right padding when drawer closed
-	},
-	toolbarIcon: {
-		display: "flex",
-		alignItems: "center",
-		justifyContent: "flex-end",
-		padding: "0 8px",
-		...theme.mixins.toolbar,
-	},
-	appBar: {
-		zIndex: theme.zIndex.drawer + 1,
-		transition: theme.transitions.create(["width", "margin"], {
-			easing: theme.transitions.easing.sharp,
-			duration: theme.transitions.duration.leavingScreen,
-		}),
-	},
-	appBarShift: {
-		marginLeft: drawerWidth,
-		width: `calc(100% - ${drawerWidth}px)`,
-		transition: theme.transitions.create(["width", "margin"], {
-			easing: theme.transitions.easing.sharp,
-			duration: theme.transitions.duration.enteringScreen,
-		}),
-	},
-	menuButton: {
-		marginRight: 36,
-	},
-	menuButtonHidden: {
-		display: "none",
-	},
-	title: {
-		flexGrow: 1,
-	},
-	drawerPaper: {
-		position: "relative",
-		whiteSpace: "nowrap",
-		width: drawerWidth,
-		transition: theme.transitions.create("width", {
-			easing: theme.transitions.easing.sharp,
-			duration: theme.transitions.duration.enteringScreen,
-		}),
-	},
-	drawerPaperClose: {
-		overflowX: "hidden",
-		transition: theme.transitions.create("width", {
-			easing: theme.transitions.easing.sharp,
-			duration: theme.transitions.duration.leavingScreen,
-		}),
-		width: theme.spacing(7),
-		[theme.breakpoints.up("sm")]: {
-			width: theme.spacing(9),
-		},
-	},
-	appBarSpacer: theme.mixins.toolbar,
-	content: {
-		flexGrow: 1,
-		height: "100vh",
-		overflow: "auto",
-	},
-	container: {
-		paddingTop: theme.spacing(4),
-		paddingBottom: theme.spacing(4),
-	},
-	paper: {
-		padding: theme.spacing(2),
-		display: "flex",
-		overflow: "auto",
-		flexDirection: "column",
-	},
-	fixedHeight: {
-		height: 240,
-	},
-	formControl: {
-		margin: theme.spacing(1),
-		minWidth: 120,
-	},
+  root: {
+    display: "flex",
+  },
+  toolbar: {
+    paddingRight: 24, // keep right padding when drawer closed
+  },
+  toolbarIcon: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    padding: "0 8px",
+    ...theme.mixins.toolbar,
+  },
+  appBar: {
+    zIndex: theme.zIndex.drawer + 1,
+    transition: theme.transitions.create(["width", "margin"], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+  },
+  appBarShift: {
+    marginLeft: drawerWidth,
+    width: `calc(100% - ${drawerWidth}px)`,
+    transition: theme.transitions.create(["width", "margin"], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  },
+  menuButton: {
+    marginRight: 36,
+  },
+  menuButtonHidden: {
+    display: "none",
+  },
+  title: {
+    flexGrow: 1,
+  },
+  drawerPaper: {
+    position: "relative",
+    whiteSpace: "nowrap",
+    width: drawerWidth,
+    transition: theme.transitions.create("width", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  },
+  drawerPaperClose: {
+    overflowX: "hidden",
+    transition: theme.transitions.create("width", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    width: theme.spacing(7),
+    [theme.breakpoints.up("sm")]: {
+      width: theme.spacing(9),
+    },
+  },
+  appBarSpacer: theme.mixins.toolbar,
+  content: {
+    flexGrow: 1,
+    height: "100vh",
+    overflow: "auto",
+  },
+  container: {
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
+  },
+  paper: {
+    padding: theme.spacing(2),
+    display: "flex",
+    overflow: "auto",
+    flexDirection: "column",
+  },
+  fixedHeight: {
+    height: 240,
+  },
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 120,
+  },
 }));
 
 const drawerWidth = 240;
 
 const Dashboard = (props) => {
-  const [doctors, setDoctors] = useState([])
-  const [doctor, setDoctor] = useState('')
+  const [doctors, setDoctors] = useState([]);
+  const [doctor, setDoctor] = useState("");
+  const [doctorName, setDoctorName] = useState("");
   const [formularioDiario, setFormularioDiario] = useState(true);
   const [settings, setSettings] = useState(false);
   const [formularioMensual, setFormularioMensual] = useState(false);
@@ -525,36 +527,38 @@ const Dashboard = (props) => {
   };
 
   useEffect(async () => {
-	const querySnapshot = await getDocs(collection(db, "Doctor"));
-	let doct = []
-	querySnapshot.forEach((doc) => {
-	  // doc.data() is never undefined for query doc snapshots
-	  console.log(doc.id, " => ", doc.data());
-	  doct.push(doc.data())
-	});
-	console.log(doct)
-	setDoctors(doct)
-  }, [])
+    const querySnapshot = await getDocs(collection(db, "Doctor"));
+    let doct = [];
+    querySnapshot.forEach((doc) => {
+      // doc.data() is never undefined for query doc snapshots
+      console.log(doc.id, " => ", doc.data());
+      doct.push(doc.data());
+    });
+    console.log(doct);
+    setDoctors(doct);
+  }, []);
 
   useEffect(async () => {
-	const querySnapshot = await getDocs(collection(db, "Paciente"));
-	querySnapshot.forEach((doc) => {
-	  // doc.data() is never undefined for query doc snapshots
-	  if(doc.data().id == auth.currentUser.email){
-		if(doc.data().doctor != ''){
-			setDoctor(doc.data().doctor)
-		}
-	  }
-	});
-  }, [])
+    const querySnapshot = await getDocs(collection(db, "Paciente"));
+    querySnapshot.forEach((doc) => {
+      // doc.data() is never undefined for query doc snapshots
+      if (doc.data().id == auth.currentUser.email) {
+        if (doc.data().doctor != "") {
+          setDoctor(doc.data().doctor);
+        }
+      }
+    });
+  }, []);
 
-async function addPatient() {
-	const ref = doc(db, "Paciente", auth.currentUser.email);
+  async function addPatient() {
+    const ref = doc(db, "Paciente", auth.currentUser.email);
 
-	await updateDoc(ref, {
-		doctor: doctor
-	});
-}
+    await updateDoc(ref, {
+      doctor: doctor,
+    });
+
+    MailServiceDoctor(doctor, doctorName);
+  }
 
   const buttonStyle = {
     backgroundColor: "#FF0088",
@@ -683,12 +687,12 @@ async function addPatient() {
 										id="demo-simple-select"
 										style={{ width: '200%' }}
 										onChange={async (event) => {
-											setDoctor(event.target.value)
-
+											setDoctor(event.target.value.id);
+                        setDoctorName(event.target.value.name);
 										}}
 									>
 										{doctors.map((row, index) =>(
-												<MenuItem value={row.id}>{row.name}</MenuItem>
+												<MenuItem value={row}>{row.name}</MenuItem>
 											))
 										}
 									</Select>
